@@ -488,59 +488,141 @@ const technicalTeamRoot: Story = {
   ],
 };
 
-// Sponsorlar hikayeleri
-const sponsorStory5: Story = {
-  text: "Sezon sonu yaklaşıyor ve sponsorlarla yeni dönem görüşmeleri başlıyor. Ne yapmalısınız?",
+// Sponsorlar hikayeleri - daha detaylı ve seçime bağlı hikayeler
+
+// Sponsorluk paketi hazırlama sonrası hikayeler
+const sponsorStory5A: Story = {
+  text: "Forma tasarımı değişikliği taraftarlar arasında tartışma yarattı. Sosyal medyada eleştiriler artıyor. Nasıl yöneteceksiniz?",
   options: [
     { 
-      text: "Uzun vadeli anlaşma teklif et", 
-      effects: { Sponsors: 20, Finance: 15 }, 
+      text: "Taraftarlarla buluşma düzenle", 
+      effects: { Fans: 15, Sponsors: 5 }, 
       nextStory: { text: "End", options: [] } 
     },
     { 
-      text: "Daha yüksek bedelli kısa dönem anlaşma iste", 
-      effects: { Sponsors: 15, Finance: 20 }, 
+      text: "Tasarımı kısmen revize et", 
+      effects: { Fans: 10, Sponsors: -5 }, 
       nextStory: { text: "End", options: [] } 
     },
     { 
-      text: "Performansa dayalı bonus sistem öner", 
-      effects: { Sponsors: 10, TechnicalTeam: 5 }, 
+      text: "Sponsor ile ortak açıklama yap", 
+      effects: { Fans: 5, Sponsors: 10 }, 
       nextStory: { text: "End", options: [] } 
     },
     { 
-      text: "Mevcut şartları koru", 
-      effects: { Sponsors: 5, Finance: 5 }, 
+      text: "Tepkileri görmezden gel", 
+      effects: { Fans: -15, Sponsors: 5 }, 
       nextStory: { text: "End", options: [] } 
     },
   ],
 };
 
+const sponsorStory5B: Story = {
+  text: "Ek ücret talebiniz sonrası sponsor firma alternatif kulüplerle görüşmeye başladı. Pazarlık süreci gergin ilerliyor.",
+  options: [
+    { 
+      text: "Talebinizde ısrar edin", 
+      effects: { Finance: 20, Sponsors: -10 }, 
+      nextStory: { text: "End", options: [] } 
+    },
+    { 
+      text: "Orta yol bulun", 
+      effects: { Finance: 10, Sponsors: 5 }, 
+      nextStory: { text: "End", options: [] } 
+    },
+    { 
+      text: "Ek hizmetler sunun", 
+      effects: { Finance: 5, Sponsors: 15 }, 
+      nextStory: { text: "End", options: [] } 
+    },
+    { 
+      text: "Talebinizden vazgeçin", 
+      effects: { Finance: -5, Sponsors: 10 }, 
+      nextStory: { text: "End", options: [] } 
+    },
+  ],
+};
+
+const sponsorStory5C: Story = {
+  text: "Orta yol bulma çabanız sponsor firma tarafından takdir edildi. Şimdi daha kapsamlı bir işbirliği öneriyorlar.",
+  options: [
+    { 
+      text: "Tüm önerileri kabul edin", 
+      effects: { Sponsors: 20, Finance: 15, Fans: -5 }, 
+      nextStory: { text: "End", options: [] } 
+    },
+    { 
+      text: "Seçici davranın", 
+      effects: { Sponsors: 15, Finance: 10 }, 
+      nextStory: { text: "End", options: [] } 
+    },
+    { 
+      text: "Taraftar odaklı işbirliği isteyin", 
+      effects: { Sponsors: 10, Fans: 15 }, 
+      nextStory: { text: "End", options: [] } 
+    },
+    { 
+      text: "Altyapı desteği talep edin", 
+      effects: { Sponsors: 5, TechnicalTeam: 15 }, 
+      nextStory: { text: "End", options: [] } 
+    },
+  ],
+};
+
+const sponsorStory5D: Story = {
+  text: "Talebi reddetmeniz sonrası sponsor firma kontratı feshetmekle tehdit ediyor. Kriz yönetimi gerekiyor.",
+  options: [
+    { 
+      text: "Alternatif sponsor arayışına başlayın", 
+      effects: { Sponsors: 5, Finance: -10 }, 
+      nextStory: { text: "End", options: [] } 
+    },
+    { 
+      text: "Uzlaşma için yeniden görüşün", 
+      effects: { Sponsors: 10, Finance: -5 }, 
+      nextStory: { text: "End", options: [] } 
+    },
+    { 
+      text: "Hukuki sürece hazırlanın", 
+      effects: { Sponsors: -15, Finance: -15 }, 
+      nextStory: { text: "End", options: [] } 
+    },
+    { 
+      text: "Kamuoyu desteği arayın", 
+      effects: { Sponsors: -5, Fans: 15 }, 
+      nextStory: { text: "End", options: [] } 
+    },
+  ],
+};
+
+// Then define sponsorStory4 before it's used in sponsorStory3
 const sponsorStory4: Story = {
   text: "Forma sponsoru değişiklik talep ediyor. Nasıl karşılık vereceksiniz?",
   options: [
     { 
       text: "Tasarımı değiştir", 
       effects: { Sponsors: 15, Fans: -5 }, 
-      nextStory: sponsorStory5 
+      nextStory: sponsorStory5A 
     },
     { 
       text: "Ek ücret talep et", 
       effects: { Sponsors: -5, Finance: 15 }, 
-      nextStory: sponsorStory5 
+      nextStory: sponsorStory5B 
     },
     { 
       text: "Orta yol bul", 
       effects: { Sponsors: 10, Fans: 5 }, 
-      nextStory: sponsorStory5 
+      nextStory: sponsorStory5C 
     },
     { 
       text: "Talebi reddet", 
       effects: { Sponsors: -10, Finance: -5 }, 
-      nextStory: sponsorStory5 
+      nextStory: sponsorStory5D 
     },
   ],
 };
 
+// Now define sponsorStory3
 const sponsorStory3: Story = {
   text: "Yeni bir sponsor adayı stadyum isim hakkı için teklifte bulundu. Ne yapacaksınız?",
   options: [
@@ -563,6 +645,58 @@ const sponsorStory3: Story = {
       text: "Teklifi reddet", 
       effects: { Sponsors: -10, Fans: 10 }, 
       nextStory: sponsorStory4 
+    },
+  ],
+};
+
+const sponsorStory2A_NewPackage: Story = {
+  text: "Yeni sponsorluk paketiniz ilgi görmeye başladı. İlk teklifler geliyor. Nasıl ilerlemelisiniz?",
+  options: [
+    { 
+      text: "En yüksek teklifi veren firmaya öncelik ver", 
+      effects: { Sponsors: 20, Finance: 15, Fans: -5 }, 
+      nextStory: sponsorStory3 
+    },
+    { 
+      text: "Uzun vadeli işbirliği potansiyeli olanlara odaklan", 
+      effects: { Sponsors: 15, Finance: 10 }, 
+      nextStory: sponsorStory3 
+    },
+    { 
+      text: "Marka değeri yüksek firmaları seç", 
+      effects: { Sponsors: 10, Fans: 10 }, 
+      nextStory: sponsorStory3 
+    },
+    { 
+      text: "Yerel firmalara öncelik ver", 
+      effects: { Sponsors: 5, Fans: 15 }, 
+      nextStory: sponsorStory3 
+    },
+  ],
+};
+
+const sponsorStory5: Story = {
+  text: "Sezon sonu yaklaşıyor ve sponsorlarla yeni dönem görüşmeleri başlıyor. Ne yapmalısınız?",
+  options: [
+    { 
+      text: "Uzun vadeli anlaşma teklif et", 
+      effects: { Sponsors: 20, Finance: 15 }, 
+      nextStory: { text: "End", options: [] } 
+    },
+    { 
+      text: "Daha yüksek bedelli kısa dönem anlaşma iste", 
+      effects: { Sponsors: 15, Finance: 20 }, 
+      nextStory: { text: "End", options: [] } 
+    },
+    { 
+      text: "Performansa dayalı bonus sistem öner", 
+      effects: { Sponsors: 10, TechnicalTeam: 5 }, 
+      nextStory: { text: "End", options: [] } 
+    },
+    { 
+      text: "Mevcut şartları koru", 
+      effects: { Sponsors: 5, Finance: 5 }, 
+      nextStory: { text: "End", options: [] } 
     },
   ],
 };
@@ -599,7 +733,7 @@ const sponsorsRoot: Story = {
     { 
       text: "Yeni sponsorluk paketi hazırla", 
       effects: { Sponsors: 15, Finance: -5 }, 
-      nextStory: sponsorStory2 
+      nextStory: sponsorStory2A_NewPackage // Yeni paket hazırlanırsa ilgili hikaye
     },
     { 
       text: "Mevcut sponsorlarla görüş", 
@@ -646,30 +780,32 @@ const fansStory5: Story = {
   ],
 };
 
-const fansStory4: Story = {
-  text: "Taraftarlar bilet fiyatlarından şikayetçi. Ne yapacaksınız?",
+const fansStory4A: Story = {
+  text: "İndirim kampanyası sonrası bilet satışları arttı ama gelir düştü. Dengeyi nasıl sağlayacaksınız?",
   options: [
-    { 
-      text: "İndirim yap", 
-      effects: { Fans: 20, Finance: -15 }, 
-      nextStory: fansStory5 
-    },
-    { 
-      text: "Kombine kampanyası başlat", 
-      effects: { Fans: 15, Finance: -10 }, 
-      nextStory: fansStory5 
-    },
-    { 
-      text: "Ek hizmetler sun", 
-      effects: { Fans: 10, Finance: 5 }, 
-      nextStory: fansStory5 
-    },
-    { 
-      text: "Fiyatları koru", 
-      effects: { Fans: -10, Finance: 10 }, 
-      nextStory: fansStory5 
-    },
-  ],
+    // ... options with unique next stories
+  ]
+};
+
+const fansStory4B: Story = {
+  text: "Kombine kampanyası büyük ilgi gördü. Stadyum doluluk oranı artıyor. Nasıl değerlendireceksiniz?",
+  options: [
+    // ... options with unique next stories
+  ]
+};
+
+const fansStory4C: Story = {
+  text: "Sunduğunuz ek hizmetler taraftarlar arasında beğeni topladı. Bir sonraki adım ne olacak?",
+  options: [
+    // ... options with unique next stories
+  ]
+};
+
+const fansStory4D: Story = {
+  text: "Fiyatları korumanız nedeniyle taraftar protestoları başladı. Nasıl yöneteceksiniz?",
+  options: [
+    // ... options with unique next stories
+  ]
 };
 
 const fansStory3: Story = {
@@ -678,22 +814,22 @@ const fansStory3: Story = {
     { 
       text: "Açık toplantı düzenle", 
       effects: { Fans: 15, TechnicalTeam: 5 }, 
-      nextStory: fansStory4 
+      nextStory: fansStory4A 
     },
     { 
       text: "Dernek başkanlarıyla görüş", 
       effects: { Fans: 10, TechnicalTeam: 10 }, 
-      nextStory: fansStory4 
+      nextStory: fansStory4B 
     },
     { 
       text: "Yazılı açıklama yap", 
       effects: { Fans: -5, Sponsors: 5 }, 
-      nextStory: fansStory4 
+      nextStory: fansStory4C 
     },
     { 
       text: "Görüşmeyi ertele", 
       effects: { Fans: -10 }, 
-      nextStory: fansStory4 
+      nextStory: fansStory4D 
     },
   ],
 };
