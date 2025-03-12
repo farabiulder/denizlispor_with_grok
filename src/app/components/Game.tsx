@@ -1,5 +1,4 @@
 "use client";
-
 import { useState, useEffect } from "react";
 import { stories } from "../data/stories";
 import styles from "../styles/Game.module.css";
