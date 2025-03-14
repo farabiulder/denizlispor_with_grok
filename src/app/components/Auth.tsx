@@ -3,6 +3,7 @@ import { useState } from "react";
 import { useAuth } from "../context/AuthProvider";
 import styles from "../styles/Auth.module.css";
 import { motion } from "framer-motion";
+import { useRouter } from "next/navigation";
 
 export default function Auth() {
   const [email, setEmail] = useState("");
@@ -11,6 +12,7 @@ export default function Auth() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const { signIn, signUp } = useAuth();
+  const router = useRouter();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -30,6 +32,10 @@ export default function Auth() {
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleForgotPassword = () => {
+    router.push("/reset-password/request");
   };
 
   return (
@@ -75,6 +81,16 @@ export default function Auth() {
               className={styles.input}
             />
           </div>
+
+          {isLogin && (
+            <button
+              type="button"
+              onClick={handleForgotPassword}
+              className={styles.forgotPasswordButton}
+            >
+              Şifremi Unuttum
+            </button>
+          )}
 
           <motion.button
             type="submit"

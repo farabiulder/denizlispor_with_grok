@@ -1,4 +1,4 @@
-.authContainer {
+.settingsContainer {
   display: flex;
   justify-content: center;
   align-items: center;
@@ -12,30 +12,76 @@
   background-blend-mode: overlay;
 }
 
-.authCard {
+.settingsCard {
   width: 100%;
-  max-width: 450px;
+  max-width: 600px;
   background-color: white;
   border-radius: 12px;
   box-shadow: 0 8px 30px rgba(0, 0, 0, 0.08);
   padding: 40px;
-  text-align: center;
 }
 
-.authTitle {
+.settingsHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 30px;
+  padding-bottom: 15px;
+  border-bottom: 1px solid #eee;
+}
+
+.settingsTitle {
   font-size: 28px;
   font-weight: 700;
   color: #133b5c;
-  margin-bottom: 15px;
+  margin: 0;
 }
 
-.authDescription {
+.backLink {
+  color: #4ead33;
+  text-decoration: none;
+  font-size: 14px;
+  font-weight: 600;
+  transition: color 0.3s;
+}
+
+.backLink:hover {
+  color: #3d9428;
+  text-decoration: underline;
+}
+
+.userInfo {
+  background-color: #f8f9fa;
+  padding: 15px;
+  border-radius: 8px;
+  margin-bottom: 25px;
+}
+
+.userEmail {
   font-size: 16px;
-  color: #555;
-  margin-bottom: 30px;
+  color: #333;
 }
 
-.authForm {
+.settingsSection {
+  margin-bottom: 30px;
+  padding-bottom: 20px;
+  border-bottom: 1px solid #eee;
+}
+
+.settingsSection:last-child {
+  border-bottom: none;
+  margin-bottom: 0;
+  padding-bottom: 0;
+}
+
+.sectionTitle {
+  font-size: 20px;
+  font-weight: 600;
+  color: #133b5c;
+  margin-bottom: 20px;
+}
+
+.settingsForm {
   text-align: left;
 }
 
@@ -65,7 +111,7 @@
   outline: none;
 }
 
-.authButton {
+.updateButton {
   width: 100%;
   padding: 14px;
   background-color: #4ead33;
@@ -79,29 +125,13 @@
   margin-top: 10px;
 }
 
-.authButton:hover {
+.updateButton:hover {
   background-color: #3d9428;
 }
 
-.authButton:disabled {
+.updateButton:disabled {
   background-color: #a0a0a0;
   cursor: not-allowed;
-}
-
-.authLinks {
-  margin-top: 25px;
-  font-size: 14px;
-}
-
-.authLink {
-  color: #4ead33;
-  text-decoration: none;
-  transition: color 0.3s;
-}
-
-.authLink:hover {
-  color: #3d9428;
-  text-decoration: underline;
 }
 
 .message {
@@ -123,21 +153,27 @@
   border: 1px solid rgba(231, 76, 60, 0.3);
 }
 
-.toggleText {
-  text-align: center;
-  margin-top: 20px;
-  color: #666;
+.optionLink {
+  display: block;
+  padding: 12px 15px;
+  background-color: #f8f9fa;
+  border-radius: 8px;
+  color: #133b5c;
+  text-decoration: none;
+  margin-bottom: 10px;
+  transition: background-color 0.3s;
 }
 
-.toggleButton {
-  background: none;
-  border: none;
-  color: #1e5f74;
-  font-weight: 600;
-  cursor: pointer;
-  text-decoration: underline;
+.optionLink:hover {
+  background-color: #edf2f7;
+  color: #4ead33;
 }
 
-.toggleButton:hover {
+.loading {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  font-size: 20px;
   color: #133b5c;
 } 

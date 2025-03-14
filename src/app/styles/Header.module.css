@@ -1,0 +1,107 @@
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 15px 30px;
+  background-color: #133b5c;
+  color: white;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+.logo {
+  font-size: 20px;
+  font-weight: 700;
+}
+
+.logo a {
+  color: white;
+  text-decoration: none;
+}
+
+.navLinks {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
+.settingsLink {
+  position: relative;
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  transition: background-color 0.3s;
+}
+
+.settingsLink:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+}
+
+.settingsIcon {
+  width: 24px;
+  height: 24px;
+}
+
+.tooltipText {
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  background-color: rgba(0, 0, 0, 0.8);
+  color: white;
+  padding: 5px 10px;
+  border-radius: 4px;
+  font-size: 12px;
+  white-space: nowrap;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.3s, visibility 0.3s;
+  margin-top: 5px;
+}
+
+.settingsLink:hover .tooltipText {
+  opacity: 1;
+  visibility: visible;
+}
+
+.loginButton, .logoutButton {
+  padding: 8px 16px;
+  border-radius: 4px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.loginButton {
+  background-color: #4ead33;
+  color: white;
+  text-decoration: none;
+}
+
+.loginButton:hover {
+  background-color: #3d9428;
+}
+
+.logoutButton {
+  background-color: transparent;
+  color: white;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+.logoutButton:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+}
+
+@media (max-width: 600px) {
+  .header {
+    padding: 15px;
+  }
+  
+  .logo {
+    font-size: 16px;
+  }
+} 
