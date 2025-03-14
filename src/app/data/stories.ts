@@ -783,28 +783,120 @@ const fansStory5: Story = {
 const fansStory4A: Story = {
   text: "İndirim kampanyası sonrası bilet satışları arttı ama gelir düştü. Dengeyi nasıl sağlayacaksınız?",
   options: [
-    // ... options with unique next stories
+    {
+      text: "Kombine kampanyasını genişleterek daha fazla taraftara ulaşalım",
+      effects: { Fans: 10, Finance: -5 },
+      nextStory: {
+        text: "Kampanya genişletildi ve stadyum doluluk oranı %85'e yükseldi. Taraftar desteği arttı ancak maliyetler de yükseldi.",
+        options: []
+      }
+    },
+    {
+      text: "Mevcut kampanyayı sürdürelim, ilave maliyet oluşturmayalım",
+      effects: { Fans: 5, Finance: 2 },
+      nextStory: {
+        text: "Mevcut kampanya ile devam edildi. Doluluk oranı %70 civarında kaldı ancak mali disiplin korundu.",
+        options: []
+      }
+    },
+    {
+      text: "Sosyal medya üzerinden taraftarlara özel dijital içerikler sunalım",
+      effects: { Fans: 8, Sponsors: 3 },
+      nextStory: {
+        text: "Dijital içerikler taraftarlar arasında büyük ilgi gördü. Hem taraftar bağlılığı arttı hem de sponsorlar bu yaklaşımı destekledi.",
+        options: []
+      }
+    }
   ]
 };
 
 const fansStory4B: Story = {
   text: "Kombine kampanyası büyük ilgi gördü. Stadyum doluluk oranı artıyor. Nasıl değerlendireceksiniz?",
   options: [
-    // ... options with unique next stories
+    {
+      text: "Taraftar dernekleri ile ortak etkinlikler düzenleyelim",
+      effects: { Fans: 12, TechnicalTeam: 3 },
+      nextStory: {
+        text: "Taraftar dernekleri ile düzenlenen etkinlikler takım ruhunu olumlu etkiledi ve taraftarlar arasında büyük ilgi gördü.",
+        options: []
+      }
+    },
+    {
+      text: "Bilet fiyatlarını bir miktar düşürerek daha fazla taraftar çekelim",
+      effects: { Fans: 8, Finance: -4 },
+      nextStory: {
+        text: "Bilet fiyatlarındaki indirim sonucu stadyum doluluk oranı arttı ancak gelirler düştü.",
+        options: []
+      }
+    },
+    {
+      text: "Futbolcularla taraftarların buluşacağı imza günleri düzenleyelim",
+      effects: { Fans: 10, TechnicalTeam: -2 },
+      nextStory: {
+        text: "İmza günleri taraftarlar arasında coşkuyla karşılandı, ancak teknik ekip antrenman programının aksadığından şikayetçi.",
+        options: []
+      }
+    }
   ]
 };
 
 const fansStory4C: Story = {
   text: "Sunduğunuz ek hizmetler taraftarlar arasında beğeni topladı. Bir sonraki adım ne olacak?",
   options: [
-    // ... options with unique next stories
+    {
+      text: "Eski başarılı futbolcuları onurlandıran bir etkinlik düzenleyelim",
+      effects: { Fans: 15, Finance: -3 },
+      nextStory: {
+        text: "Efsaneler gecesi düzenlendi ve taraftarlar büyük ilgi gösterdi. Kulüp tarihine olan bağlılık arttı.",
+        options: []
+      }
+    },
+    {
+      text: "Maç öncesi taraftar festivalleri düzenleyelim",
+      effects: { Fans: 10, Sponsors: 5 },
+      nextStory: {
+        text: "Maç öncesi festivaller hem taraftarları memnun etti hem de sponsorlar için yeni bir tanıtım fırsatı oldu.",
+        options: []
+      }
+    },
+    {
+      text: "Çocuklara yönelik Denizlispor Futbol Akademisi kuralım",
+      effects: { Fans: 8, TechnicalTeam: 7, Finance: -5 },
+      nextStory: {
+        text: "Futbol akademisi genç yeteneklerin keşfedilmesini sağladı ve ailelerin kulübe olan bağlılığını artırdı.",
+        options: []
+      }
+    }
   ]
 };
 
 const fansStory4D: Story = {
   text: "Fiyatları korumanız nedeniyle taraftar protestoları başladı. Nasıl yöneteceksiniz?",
   options: [
-    // ... options with unique next stories
+    {
+      text: "Deplasman maçlarına taraftar götürmek için otobüs organizasyonu yapalım",
+      effects: { Fans: 12, Finance: -4 },
+      nextStory: {
+        text: "Deplasman organizasyonları sayesinde takım her yerde güçlü destek buldu ve moral yüksek tutuldu.",
+        options: []
+      }
+    },
+    {
+      text: "Kulüp müzesi kurup taraftarlara kulüp tarihini tanıtalım",
+      effects: { Fans: 15, Finance: -8, Sponsors: 3 },
+      nextStory: {
+        text: "Kulüp müzesi açıldı ve taraftarlar kulüp tarihiyle daha yakından bağ kurdular. Ziyaretçi sayısı beklentilerin üzerinde.",
+        options: []
+      }
+    },
+    {
+      text: "Taraftar gruplarına serbest tezahürat alanları oluşturalım",
+      effects: { Fans: 10, TechnicalTeam: 2 },
+      nextStory: {
+        text: "Serbest tezahürat alanları stadyumda muhteşem bir atmosfer yarattı ve takıma büyük moral verdi.",
+        options: []
+      }
+    }
   ]
 };
 

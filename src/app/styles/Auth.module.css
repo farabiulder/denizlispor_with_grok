@@ -1,0 +1,105 @@
+.authContainer {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  background: linear-gradient(135deg, #1e5f74 0%, #133b5c 100%);
+  padding: 20px;
+}
+
+.authCard {
+  background-color: white;
+  border-radius: 10px;
+  padding: 40px;
+  width: 100%;
+  max-width: 450px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+}
+
+.authTitle {
+  color: #133b5c;
+  text-align: center;
+  margin-bottom: 30px;
+  font-size: 28px;
+}
+
+.authForm {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.formGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.formGroup label {
+  font-weight: 600;
+  color: #133b5c;
+}
+
+.input {
+  padding: 12px 15px;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  font-size: 16px;
+  transition: border-color 0.3s ease;
+}
+
+.input:focus {
+  border-color: #1e5f74;
+  outline: none;
+  box-shadow: 0 0 0 2px rgba(30, 95, 116, 0.2);
+}
+
+.authButton {
+  background-color: #1e5f74;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  padding: 12px;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+  margin-top: 10px;
+}
+
+.authButton:hover {
+  background-color: #133b5c;
+}
+
+.authButton:disabled {
+  background-color: #cccccc;
+  cursor: not-allowed;
+}
+
+.error {
+  background-color: #ffebee;
+  color: #c62828;
+  padding: 10px;
+  border-radius: 5px;
+  margin-bottom: 15px;
+  text-align: center;
+}
+
+.toggleText {
+  text-align: center;
+  margin-top: 20px;
+  color: #666;
+}
+
+.toggleButton {
+  background: none;
+  border: none;
+  color: #1e5f74;
+  font-weight: 600;
+  cursor: pointer;
+  text-decoration: underline;
+}
+
+.toggleButton:hover {
+  color: #133b5c;
+} 

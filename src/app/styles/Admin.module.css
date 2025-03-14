@@ -1,0 +1,40 @@
+.adminContainer {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 20px;
+}
+
+.adminHeader {
+  background-color: #133b5c;
+  color: white;
+  padding: 15px 20px;
+  border-radius: 8px;
+  margin-bottom: 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.adminHeader h1 {
+  margin: 0;
+  font-size: 24px;
+}
+
+.adminContent {
+  background-color: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+.loading, .unauthorized {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  font-size: 20px;
+  color: #133b5c;
+}
+
+.unauthorized {
+  color: #e74c3c;
+} 
