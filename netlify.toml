@@ -1,0 +1,27 @@
+[build]
+  command = "npm run build"
+  publish = ".next"
+
+[build.environment]
+  NEXT_PUBLIC_SUPABASE_URL = "https://mqlnaawqggsfggryzyis.supabase.co"
+  NEXT_PUBLIC_SUPABASE_API_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1xbG5hYXdxZ2dzZmdncnl6eWlzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDE5MDE0OTksImV4cCI6MjA1NzQ3NzQ5OX0.owgohHdFR4bA5IGNsUrJXGN1p0WaEB0GtT5h5Z5d6RE"
+  NEXT_PUBLIC_SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1xbG5hYXdxZ2dzZmdncnl6eWlzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDE5MDE0OTksImV4cCI6MjA1NzQ3NzQ5OX0.owgohHdFR4bA5IGNsUrJXGN1p0WaEB0GtT5h5Z5d6RE"
+
+# For Next.js 13+ with app directory
+[functions]
+  included_files = [".next/server/**", ".next/standalone/**"]
+
+[[plugins]]
+  package = "@netlify/plugin-nextjs"
+
+[[redirects]]
+  from = "/*"
+  to = "/_next/static/:splat"
+  status = 200
+  force = true
+  conditions = {Path = ["/_next/static/*"]}
+
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200 
