@@ -82,15 +82,13 @@ export default function Auth() {
             />
           </div>
 
-          {isLogin && (
-            <button
-              type="button"
-              onClick={handleForgotPassword}
-              className={styles.forgotPasswordButton}
-            >
-              Şifremi Unuttum
-            </button>
-          )}
+          <button
+            type="button"
+            onClick={handleForgotPassword}
+            className={styles.forgotPasswordButton}
+          >
+            Şifremi Unuttum
+          </button>
 
           <motion.button
             type="submit"

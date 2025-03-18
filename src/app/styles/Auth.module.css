@@ -141,3 +141,10 @@
 .toggleButton:hover {
   color: #133b5c;
 } 
+
+.forgotPasswordButton {
+  background: none;
+  border: none;
+  color: #1e5f74;
+
+}

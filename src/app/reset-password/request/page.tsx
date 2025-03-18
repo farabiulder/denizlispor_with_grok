@@ -93,7 +93,7 @@ export default function RequestPasswordReset() {
         </form>
 
         <div className={styles.authLinks}>
-          <Link href="/login" className={styles.authLink}>
+          <Link href="/" className={styles.authLink}>
             Giriş sayfasına dön
           </Link>
         </div>
