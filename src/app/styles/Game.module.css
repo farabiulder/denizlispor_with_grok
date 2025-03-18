@@ -658,3 +658,266 @@
   margin: 20px 0;
   color: #4ead33;
 }
+
+/* Add these styles to your existing CSS file */
+
+.predictionDetails {
+  background-color: #1e4258;
+  border-radius: 8px;
+  padding: 20px;
+  margin: 20px 0;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  color: white;
+}
+
+.formSummary {
+  margin-bottom: 20px;
+}
+
+.formStats {
+  display: flex;
+  justify-content: space-around;
+  margin-top: 10px;
+}
+
+.formStat {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 10px 15px;
+  background-color: #133b5c;
+  border-radius: 6px;
+  min-width: 80px;
+}
+
+.formValue {
+  font-size: 24px;
+  font-weight: bold;
+  color: #ffd700;
+}
+
+.formLabel {
+  font-size: 14px;
+  color: #e0e0e0;
+  margin-top: 5px;
+}
+
+.recentMatches {
+  margin-top: 20px;
+}
+
+.matchesList {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 10px;
+}
+
+.matchItem {
+  background-color: #133b5c;
+  border-radius: 6px;
+  padding: 12px;
+}
+
+.matchTeams {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 5px;
+}
+
+.matchScore {
+  font-weight: bold;
+  color: #ffd700;
+}
+
+.homeTeam {
+  font-weight: bold;
+  color: #4caf50;
+}
+
+.matchDate {
+  font-size: 12px;
+  color: #a0a0a0;
+  text-align: right;
+}
+
+.errorText {
+  color: #ff6b6b;
+  font-style: italic;
+}
+
+.nextOpponent {
+  margin-bottom: 20px;
+  background-color: rgba(255, 255, 255, 0.1);
+  padding: 15px;
+  border-radius: 8px;
+  text-align: center;
+}
+
+.opponentName {
+  font-size: 24px;
+  font-weight: bold;
+  color: #ffd700;
+  margin-top: 10px;
+}
+
+/* Add these new styles to your existing CSS file */
+
+.adminControls {
+  margin-top: 10px;
+  display: flex;
+  justify-content: center;
+}
+
+.adminButton {
+  background-color: #444;
+  color: white;
+  border: none;
+  padding: 5px 10px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 0.8rem;
+}
+
+.adminButton:hover {
+  background-color: #555;
+}
+
+.optionEffects {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+  margin-top: 8px;
+  font-size: 0.8rem;
+  justify-content: center;
+}
+
+.positiveEffect {
+  color: white;
+  font-weight: bold;
+  background-color: rgba(76, 175, 80, 0.7);
+  padding: 2px 6px;
+  border-radius: 3px;
+}
+
+.negativeEffect {
+  color: white;
+  font-weight: bold;
+  background-color: rgba(244, 67, 54, 0.7);
+  padding: 2px 6px;
+  border-radius: 3px;
+}
+
+.neutralEffect {
+  color: white;
+  font-weight: bold;
+  background-color: rgba(158, 158, 158, 0.7);
+  padding: 2px 6px;
+  border-radius: 3px;
+}
+
+/* Option button color indicators */
+.veryPositiveOption {
+  border-left: 5px solid #00c853;
+}
+
+.positiveOption {
+  border-left: 5px solid #4caf50;
+}
+
+.neutralOption {
+  border-left: 5px solid #9e9e9e;
+}
+
+.negativeOption {
+  border-left: 5px solid #ff9800;
+}
+
+.veryNegativeOption {
+  border-left: 5px solid #f44336;
+}
+
+.newStoryNotification {
+  background-color: rgba(78, 173, 51, 0.1);
+  border: 2px solid #4ead33;
+  border-radius: 10px;
+  padding: 20px;
+  margin: 20px 0;
+  position: relative;
+  text-align: center;
+}
+
+.newStoryBadge {
+  position: absolute;
+  top: -12px;
+  right: -12px;
+  background-color: #ff3d00;
+  color: white;
+  font-weight: bold;
+  padding: 5px 10px;
+  border-radius: 20px;
+  font-size: 14px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+}
+
+.newStoryNotification h3 {
+  color: #4ead33;
+  margin-bottom: 10px;
+  font-size: 22px;
+}
+
+.newStoryNotification p {
+  color: #333;
+  font-size: 16px;
+}
+
+.completionActions {
+  margin-top: 20px;
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+}
+
+.newStoryButton, .replayButton {
+  padding: 12px 24px;
+  border-radius: 8px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.newStoryButton {
+  background-color: #4ead33;
+  color: white;
+  border: none;
+}
+
+.replayButton {
+  background-color: #ff9800;
+  color: white;
+  border: none;
+}
+
+.newStoryButton:hover, .replayButton:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+}
+
+.waitMessage {
+  color: #666;
+  font-style: italic;
+  text-align: center;
+}
+
+/* Add these styles to your CSS file */
+.disabledButton {
+  opacity: 0.6;
+  cursor: not-allowed;
+  background-color: #999 !important;
+}
+
+.disabledButton:hover {
+  transform: none !important;
+  box-shadow: none !important;
+}

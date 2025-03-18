@@ -1,12 +1,17 @@
 "use client";
 import { useState, useEffect } from "react";
-import { stories } from "../data/stories";
+import { getStory, stories } from "../data/stories";
 import styles from "../styles/Game.module.css";
 import { useAuth } from "../context/AuthProvider";
 import { supabase } from "../lib/supabaseClient";
 import { motion, AnimatePresence } from "framer-motion";
 import { useRouter } from "next/router";
 import { usePathname } from "next/navigation";
+import {
+  generatePrediction,
+  generatePredictionFromProgressBars,
+  PredictionData,
+} from "../services/sportmonksService";
 
 interface ProgressBars {
   Finance: number;
@@ -41,6 +46,24 @@ interface GameState {
   last_completion_time?: number | null;
 }
 
+interface PredictionDetails extends PredictionData {
+  isLoading: boolean;
+  error: string | null;
+  nextOpponent?: string;
+  dataSource: string;
+}
+
+interface WeeklyScore {
+  id?: number;
+  user_id: string;
+  week: number;
+  year: number;
+  points_earned: number;
+  prediction: Score;
+  actual_score: Score;
+  created_at: string;
+}
+
 const initialProgressBars: ProgressBars = {
   Finance: 50,
   TechnicalTeam: 50,
@@ -68,11 +91,30 @@ export default function Game() {
   const [lastScoreUpdate, setLastScoreUpdate] = useState<number>(0);
   const [scoreCalculated, setScoreCalculated] = useState<boolean>(false);
   const pathname = usePathname();
-  const isAdminPage = pathname === "/admin";
+  const isAdminPage = pathname?.includes("/admin") || false;
   const [lastCompletionTime, setLastCompletionTime] = useState<number | null>(
     null
   );
   const [canPlay, setCanPlay] = useState<boolean>(true);
+  const [predictionDetails, setPredictionDetails] = useState<PredictionDetails>(
+    {
+      predictedScore: { denizlisporGoals: 0, opponentGoals: 0 },
+      recentMatches: [],
+      form: { wins: 0, draws: 0, losses: 0 },
+      isLoading: false,
+      error: null,
+      dataSource: "Başlangıç",
+    }
+  );
+  const [showOptionEffects, setShowOptionEffects] = useState<boolean>(false);
+  const [newStoriesAvailable, setNewStoriesAvailable] =
+    useState<boolean>(false);
+  const [currentStoryWeek, setCurrentStoryWeek] = useState<number>(0);
+  const [lastPlayedStoryWeek, setLastPlayedStoryWeek] = useState<number>(0);
+  const [canPlayNewStory, setCanPlayNewStory] = useState<boolean>(false);
+  const [lastStoryCompletionDate, setLastStoryCompletionDate] =
+    useState<Date | null>(null);
+  const [canStartNewStory, setCanStartNewStory] = useState<boolean>(false);
 
   // Load game state from Supabase
   useEffect(() => {
@@ -133,6 +175,28 @@ export default function Game() {
     }
   }, [authLoading, user, isAdminPage]);
 
+  useEffect(() => {
+    checkForNewStories();
+  }, []);
+
+  const checkForNewStories = () => {
+    const newStoriesFlag = stories.newStories as string;
+    if (newStoriesFlag) {
+      const weekMatch = newStoriesFlag.match(/true(\d+)/);
+      if (weekMatch && weekMatch[1]) {
+        const storyWeek = parseInt(weekMatch[1], 10);
+        setCurrentStoryWeek(storyWeek);
+
+        // Check if this is a new story compared to what the user has played
+        if (lastPlayedStoryWeek < storyWeek) {
+          setNewStoriesAvailable(true);
+        } else {
+          setNewStoriesAvailable(false);
+        }
+      }
+    }
+  };
+
   const loadGameState = async () => {
     setLoading(true);
     try {
@@ -162,6 +226,22 @@ export default function Game() {
         setCompletedCategories(data.completed_categories);
         setPoints(data.points);
         setEstimatedScores(data.estimated_scores || {});
+
+        // Load the last played story week
+        if (data.last_played_story_week) {
+          setLastPlayedStoryWeek(data.last_played_story_week);
+        }
+
+        // Load last story completion date
+        if (data.last_story_completion_date) {
+          const completionDate = new Date(data.last_story_completion_date);
+          setLastStoryCompletionDate(completionDate);
+          // Always allow new story for admin
+          setCanPlayNewStory(
+            isAdminPage ? true : checkNewStoryAvailability(completionDate)
+          );
+        }
+
         setGameLoaded(true);
       } else {
         // If no data but also no error, consider the game loaded with defaults
@@ -171,6 +251,9 @@ export default function Game() {
       console.error("Failed to load game state:", err);
     } finally {
       setLoading(false);
+
+      // Check for new stories after loading game state
+      checkForNewStories();
     }
   };
 
@@ -179,27 +262,33 @@ export default function Game() {
     if (!user) return;
 
     try {
-      // Create a simpler object with just the essential fields
+      // Save game state
       const gameState = {
         user_id: user.id,
         progress_bars: progressBars,
         completed_categories: completedCategories,
-        points: points || 0,
-        estimated_scores: estimatedScores || {},
-        updated_at: new Date().toISOString(), // Use ISO string for dates
+        points: points,
+        estimated_scores: estimatedScores,
+        updated_at: new Date().toISOString(),
       };
 
-      console.log("Saving game state:", gameState);
+      const { error: gameStateError } = await supabase
+        .from("game_states")
+        .upsert(gameState, { onConflict: "user_id" });
 
-      const { error } = await supabase.from("game_states").upsert(gameState, {
-        onConflict: "user_id",
-      });
+      if (gameStateError) throw gameStateError;
 
-      if (error) {
-        console.error("Error saving game state:", error);
-      } else {
-        console.log("Game state saved successfully");
-      }
+      // Update user points
+      const { error: pointsError } = await supabase.from("user_points").upsert(
+        {
+          user_id: user.id,
+          total_points: points,
+          updated_at: new Date().toISOString(),
+        },
+        { onConflict: "user_id" }
+      );
+
+      if (pointsError) throw pointsError;
     } catch (err) {
       console.error("Failed to save game state:", err);
     }
@@ -285,7 +374,7 @@ export default function Game() {
   const selectCategory = (category: string) => {
     if (!completedCategories.includes(category)) {
       setCurrentCategory(category);
-      setCurrentStory(stories[category]);
+      setCurrentStory(getStory(category));
       setStoryCount(1);
     }
   };
@@ -369,8 +458,11 @@ export default function Game() {
     setEstimatedScores(updatedEstimatedScores);
 
     // Update points
-    const newPoints = points + Math.round(score * 10); // Convert score to points (0-100 scale)
+    const newPoints = points + Math.round(score * 10);
     setPoints(newPoints);
+
+    // Update last played story week
+    setLastPlayedStoryWeek(currentStoryWeek);
 
     // Save the game state
     const gameState = {
@@ -380,6 +472,7 @@ export default function Game() {
       points: newPoints,
       estimated_scores: updatedEstimatedScores,
       updated_at: new Date().toISOString(),
+      last_played_story_week: currentStoryWeek,
     };
 
     try {
@@ -452,12 +545,14 @@ export default function Game() {
   // Modify fetchActualScore to directly access newest data with trace logs
   const fetchActualScore = async (): Promise<Score | null> => {
     try {
-      console.log("🔍 Attempting to fetch score data...");
+      console.log(
+        "🔍 Attempting to fetch score data from real_dp_score table..."
+      );
 
-      // Try to get any row from the table
+      // Get the most recent score from the real_dp_score table
       const { data, error } = await supabase
         .from("real_dp_score")
-        .select("*")
+        .select("dp_score, rival, created_at")
         .order("created_at", { ascending: false })
         .limit(1);
 
@@ -465,8 +560,9 @@ export default function Game() {
 
       // If we got data, use it
       if (!error && data && data.length > 0) {
-        console.log("✅ Found existing row:", data[0]);
+        console.log("✅ Found existing score record:", data[0]);
 
+        // Parse the scores as numbers to ensure correct type
         const score = {
           denizlisporGoals: Number(data[0].dp_score),
           opponentGoals: Number(data[0].rival),
@@ -476,144 +572,98 @@ export default function Game() {
         return score;
       }
 
-      // If no data found or there was an error, use default values
-      console.log("⚠️ No data found or access denied. Using default score.");
-      return { denizlisporGoals: 2, opponentGoals: 4 };
+      // If no data found or there was an error, log and use default values
+      console.log(
+        "⚠️ No score data found or access denied. Using default score."
+      );
+      return { denizlisporGoals: 0, opponentGoals: 0 };
     } catch (err) {
       console.error("💥 Exception in fetchActualScore:", err);
-      return { denizlisporGoals: 2, opponentGoals: 4 };
+      return { denizlisporGoals: 0, opponentGoals: 0 };
     }
   };
 
   const calculateMatchPrediction = async () => {
-    // Only calculate points if not already calculated
-    if (scoreCalculated) {
-      console.log("Points already calculated, skipping");
-      return;
-    }
+    if (!user) return;
 
-    // Calculate a match prediction based on all progress bars
-    const matchPrediction: Score = {
-      denizlisporGoals: Math.round(
-        (progressBars.TechnicalTeam * 0.5 +
-          progressBars.Finance * 0.2 +
-          progressBars.Fans * 0.3) /
-          20
-      ),
-      opponentGoals: Math.round(
-        10 -
-          (progressBars.TechnicalTeam * 0.5 +
-            progressBars.Finance * 0.2 +
-            progressBars.Fans * 0.3) /
-            20
-      ),
-    };
+    try {
+      setPredictionDetails((prev) => ({ ...prev, isLoading: true }));
 
-    setMatchPrediction(matchPrediction);
+      // Calculate average performance from progress bars
+      const avgPerformance =
+        Object.values(progressBars).reduce((a, b) => a + b, 0) / 4;
 
-    // Fetch fresh score data
-    const actualScore = await fetchActualScore();
+      // Calculate average score from completed categories
+      const avgCategoryScore =
+        Object.values(estimatedScores).reduce((a, b) => a + b, 0) / 4;
 
-    if (actualScore) {
-      setActualScore(actualScore);
-      setLastScoreUpdate(Date.now());
+      // Get prediction from API based on past matches
+      const apiPrediction = await generatePrediction();
 
-      // Only award points if they haven't been awarded already for this game session
-      // Add a check to see if points were already calculated
-      if (!matchPrediction || points === 0) {
-        // Award points if the prediction matches the actual score
-        let earnedPoints = 0;
+      // Combine API prediction with performance metrics
+      const combinedPrediction = generatePredictionFromProgressBars({
+        progressBars,
+        categoryScores: estimatedScores,
+        apiPrediction,
+        avgPerformance,
+        avgCategoryScore,
+      });
 
-        // Check if the prediction exactly matches the actual score
-        if (
-          matchPrediction.denizlisporGoals === actualScore.denizlisporGoals &&
-          matchPrediction.opponentGoals === actualScore.opponentGoals
-        ) {
-          // Perfect match - award maximum points
-          earnedPoints = 100;
-        }
-        // Check if at least the result (win/loss/draw) was predicted correctly
-        else if (
-          (matchPrediction.denizlisporGoals > matchPrediction.opponentGoals &&
-            actualScore.denizlisporGoals > actualScore.opponentGoals) ||
-          (matchPrediction.denizlisporGoals < matchPrediction.opponentGoals &&
-            actualScore.denizlisporGoals < actualScore.opponentGoals) ||
-          (matchPrediction.denizlisporGoals === matchPrediction.opponentGoals &&
-            actualScore.denizlisporGoals === actualScore.opponentGoals)
-        ) {
-          // Correct result but not exact score - award partial points
-          earnedPoints = 50;
-        } else {
-          // Incorrect prediction - award minimum points
-          earnedPoints = 10;
-        }
-
-        // Update the player's points
-        setPoints((prevPoints) => prevPoints + earnedPoints);
-
-        // Save the updated points to Supabase
-        if (saveTimer) {
-          clearTimeout(saveTimer);
-        }
-
-        const timer = setTimeout(() => {
-          saveGameState();
-        }, 1000);
-
-        setSaveTimer(timer);
-      }
-
-      // After setting points, mark as calculated
-      setScoreCalculated(true);
+      setMatchPrediction(combinedPrediction.predictedScore);
+      setPredictionDetails({
+        ...combinedPrediction,
+        isLoading: false,
+        error: null,
+      });
+    } catch (error) {
+      console.error("Error calculating match prediction:", error);
+      setPredictionDetails((prev) => ({
+        ...prev,
+        isLoading: false,
+        error: "Tahmin hesaplanırken bir hata oluştu.",
+      }));
     }
   };
 
-  const resetGame = () => {
-    // Only update last completion time if not on admin page
-    if (!isAdminPage) {
-      const now = new Date().getTime();
-      setLastCompletionTime(now);
+  const resetGame = async () => {
+    if (!user || !isAdminPage) return;
 
-      // Save the complete game state with the updated last_completion_time
-      if (user) {
-        // Create a simpler game state object
-        const gameState = {
-          user_id: user.id,
-          progress_bars: initialProgressBars,
-          completed_categories: [],
-          points: 0,
-          estimated_scores: {},
-          updated_at: new Date().toISOString(), // Use ISO string for dates
-        };
+    try {
+      // Reset everything to initial state
+      const initialState = {
+        user_id: user.id,
+        progress_bars: {
+          Finance: 50,
+          TechnicalTeam: 50,
+          Sponsors: 50,
+          Fans: 50,
+        },
+        completed_categories: [],
+        points: 0,
+        estimated_scores: {},
+        last_story_completion_date: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
+      };
 
-        console.log("Resetting game state:", gameState);
+      const { error } = await supabase
+        .from("game_states")
+        .upsert(initialState, { onConflict: "user_id" });
 
-        supabase
-          .from("game_states")
-          .upsert(gameState, {
-            onConflict: "user_id",
-          })
-          .then(({ error }) => {
-            if (error) {
-              console.error("Error saving game state:", error);
-            } else {
-              console.log("Game state reset successfully");
-            }
-          });
-      }
+      if (error) throw error;
+
+      // Reset all local state
+      setProgressBars(initialState.progress_bars);
+      setCompletedCategories([]);
+      setCurrentCategory(null);
+      setCurrentStory(getStory("Finansal Yönetim")); // Start with first story
+      setStoryCount(1);
+      setPoints(0);
+      setEstimatedScores({});
+      setLastStoryCompletionDate(new Date());
+      window.location.reload();
+    } catch (err) {
+      console.error("Failed to reset game:", err);
     }
-
-    // Rest of your existing resetGame code
-    setCompletedCategories([]);
-    setCurrentCategory(null);
-    setCurrentStory(null);
-    setStoryCount(0);
-    setProgressBars(initialProgressBars);
-    setMatchPrediction(null);
-    setActualScore(null);
-    setPoints(0);
-    setEstimatedScores({});
-    setScoreCalculated(false);
   };
 
   const fetchRealScore = async (category: string): Promise<number | null> => {
@@ -692,6 +742,146 @@ export default function Game() {
       },
     ];
   };
+
+  // Add a function to toggle option effects visibility
+  const toggleOptionEffects = () => {
+    setShowOptionEffects(!showOptionEffects);
+  };
+
+  // Add a function to calculate the total effect of an option
+  const calculateOptionImpact = (effects: Partial<ProgressBars>): number => {
+    return Object.values(effects).reduce((sum, value) => sum + value, 0);
+  };
+
+  // Add a function to get color based on impact
+  const getImpactColor = (impact: number): string => {
+    if (impact > 10) return styles.veryPositiveOption;
+    if (impact > 0) return styles.positiveOption;
+    if (impact === 0) return styles.neutralOption;
+    if (impact > -10) return styles.negativeOption;
+    return styles.veryNegativeOption;
+  };
+
+  // Add this function to check if 4 days have passed
+  const checkNewStoryAvailability = (completionDate: Date) => {
+    const now = new Date();
+    const daysPassed = Math.floor(
+      (now.getTime() - completionDate.getTime()) / (1000 * 60 * 60 * 24)
+    );
+    return daysPassed >= 4;
+  };
+
+  // Add this function to check if it's Monday
+  const isMonday = () => {
+    const today = new Date();
+    return today.getDay() === 1; // 0 is Sunday, 1 is Monday
+  };
+
+  // Update the startNewStory function
+  const startNewStory = async () => {
+    if (!user) return;
+
+    try {
+      // Keep existing progress and points
+      const gameState = {
+        user_id: user.id,
+        progress_bars: progressBars, // Keep existing progress
+        completed_categories: [], // Reset categories to start new stories
+        points: points, // Keep existing points
+        estimated_scores: estimatedScores,
+        last_story_completion_date: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
+      };
+
+      const { error } = await supabase
+        .from("game_states")
+        .upsert(gameState, { onConflict: "user_id" });
+
+      if (error) throw error;
+
+      // Reset story-related states but keep progress and points
+      setCompletedCategories([]);
+      setCurrentCategory(null);
+      setCurrentStory(getStory("Finansal Yönetim")); // Start with first story
+      setStoryCount(1);
+      setLastStoryCompletionDate(new Date());
+      window.location.reload();
+    } catch (err) {
+      console.error("Failed to start new story:", err);
+    }
+  };
+
+  // Add this useEffect to handle non-admin story availability
+  useEffect(() => {
+    if (!isAdminPage && lastStoryCompletionDate) {
+      const now = new Date();
+      const daysPassed = Math.floor(
+        (now.getTime() - lastStoryCompletionDate.getTime()) /
+          (1000 * 60 * 60 * 24)
+      );
+      setCanPlayNewStory(daysPassed >= 4);
+    }
+  }, [isAdminPage, lastStoryCompletionDate]);
+
+  // Replace the getWeek function with this
+  Date.prototype.getWeek = function () {
+    const firstDayOfYear = new Date(this.getFullYear(), 0, 1);
+    return Math.ceil(
+      ((this.getTime() - firstDayOfYear.getTime()) / 86400000 +
+        firstDayOfYear.getDay() +
+        1) /
+        7
+    );
+  };
+
+  // Update the function that fetches user points
+  const fetchUserPoints = async (userId: string) => {
+    try {
+      const { data, error } = await supabase
+        .from("user_points")
+        .select("total_points")
+        .eq("user_id", userId)
+        .single();
+
+      if (error) {
+        console.error("Error fetching user points:", error);
+        return 0;
+      }
+
+      return data?.total_points || 0;
+    } catch (err) {
+      console.error("Failed to fetch user points:", err);
+      return 0;
+    }
+  };
+
+  // Add this useEffect to handle the waiting periods
+  useEffect(() => {
+    if (!lastStoryCompletionDate) return;
+
+    const checkWaitingPeriod = () => {
+      const now = new Date().getTime();
+      const completionTime = lastStoryCompletionDate.getTime();
+      const timeDifference = now - completionTime;
+
+      if (isAdminPage) {
+        // 1 minute wait for admin (60000 milliseconds)
+        setCanStartNewStory(timeDifference >= 60000);
+      } else {
+        // 4 days wait for non-admin (345600000 milliseconds)
+        setCanStartNewStory(timeDifference >= 345600000);
+      }
+    };
+
+    // Initial check
+    checkWaitingPeriod();
+
+    // Set up interval to check every second for admin, every hour for non-admin
+    const intervalTime = isAdminPage ? 1000 : 3600000;
+    const interval = setInterval(checkWaitingPeriod, intervalTime);
+
+    return () => clearInterval(interval);
+  }, [lastStoryCompletionDate, isAdminPage]);
 
   if (authLoading) {
     return (
@@ -796,6 +986,56 @@ export default function Game() {
         </div>
 
         <motion.div
+          className={styles.predictionDetails}
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.7, duration: 0.5 }}
+        >
+          <h2>Tahmin Detayları</h2>
+
+          {predictionDetails.isLoading ? (
+            <p>Tahmin yükleniyor...</p>
+          ) : predictionDetails.error ? (
+            <p className={styles.errorText}>{predictionDetails.error}</p>
+          ) : (
+            <>
+              {predictionDetails.nextOpponent && (
+                <div className={styles.nextOpponent}>
+                  <h3>Bir Sonraki Rakip</h3>
+                  <div className={styles.opponentName}>
+                    {predictionDetails.nextOpponent}
+                  </div>
+                </div>
+              )}
+
+              <div className={styles.formSummary}>
+                <h3>Son 5 Maç Formu</h3>
+                <div className={styles.formStats}>
+                  <div className={styles.formStat}>
+                    <span className={styles.formValue}>
+                      {predictionDetails.form.wins}
+                    </span>
+                    <span className={styles.formLabel}>Galibiyet</span>
+                  </div>
+                  <div className={styles.formStat}>
+                    <span className={styles.formValue}>
+                      {predictionDetails.form.draws}
+                    </span>
+                    <span className={styles.formLabel}>Beraberlik</span>
+                  </div>
+                  <div className={styles.formStat}>
+                    <span className={styles.formValue}>
+                      {predictionDetails.form.losses}
+                    </span>
+                    <span className={styles.formLabel}>Mağlubiyet</span>
+                  </div>
+                </div>
+              </div>
+            </>
+          )}
+        </motion.div>
+
+        <motion.div
           className={styles.pointsContainer}
           initial={{ y: 20, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
@@ -848,17 +1088,28 @@ export default function Game() {
           </p>
         </motion.div>
 
-        <div className={styles.pointsEarned}>
-          <p>Kazanılan Puan: {points}</p>
-        </div>
-
         {/* Only show replay button on admin page */}
         {isAdminPage && (
-          <button onClick={resetGame} className={styles.button}>
-            Yeniden Oyna
-          </button>
+          <motion.div
+            className={styles.completionActions}
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5 }}
+          >
+            <button
+              onClick={startNewStory}
+              className={`${styles.newStoryButton} ${
+                !canStartNewStory ? styles.disabledButton : ""
+              }`}
+              disabled={!canStartNewStory}
+            >
+              {canStartNewStory ? "Yeni Hikaye" : "Lütfen 1 dakika bekleyin"}
+            </button>
+            <button onClick={resetGame} className={styles.replayButton}>
+              Baştan Başla
+            </button>
+          </motion.div>
         )}
-
         {/* For non-admin pages, show a message about next week */}
         {!isAdminPage && (
           <div className={styles.nextWeekMessage}>
@@ -896,6 +1147,18 @@ export default function Game() {
               />
             ))}
           </div>
+
+          {/* Add admin controls if on admin page */}
+          {isAdminPage && (
+            <div className={styles.adminControls}>
+              <button
+                onClick={toggleOptionEffects}
+                className={styles.adminButton}
+              >
+                {showOptionEffects ? "Etkileri Gizle" : "Etkileri Göster"}
+              </button>
+            </div>
+          )}
         </div>
 
         <motion.div
@@ -911,21 +1174,59 @@ export default function Game() {
               {(currentStory.options && currentStory.options.length > 0
                 ? currentStory.options
                 : generateFallbackOptions(currentCategory || "")
-              ).map((option, index) => (
-                <motion.button
-                  key={index}
-                  className={styles.optionButton}
-                  onClick={() => chooseOption(option)}
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: -20 }}
-                  transition={{ delay: 0.1 * index, duration: 0.3 }}
-                  whileHover={{ scale: 1.02, backgroundColor: "#133b5c" }}
-                  whileTap={{ scale: 0.98 }}
-                >
-                  {option.text}
-                </motion.button>
-              ))}
+              ).map((option, index) => {
+                // Calculate total impact for admin view
+                const impact = calculateOptionImpact(option.effects);
+                const impactClass =
+                  showOptionEffects && isAdminPage
+                    ? getImpactColor(impact)
+                    : "";
+
+                return (
+                  <motion.button
+                    key={index}
+                    className={`${styles.optionButton} ${impactClass}`}
+                    onClick={() => chooseOption(option)}
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -20 }}
+                    transition={{ delay: 0.1 * index, duration: 0.3 }}
+                    whileHover={{ scale: 1.02, backgroundColor: "#133b5c" }}
+                    whileTap={{ scale: 0.98 }}
+                  >
+                    {option.text}
+
+                    {/* Show effects for admin */}
+                    {showOptionEffects && isAdminPage && (
+                      <div className={styles.optionEffects}>
+                        {Object.entries(option.effects).map(([key, value]) => (
+                          <span
+                            key={key}
+                            className={
+                              value > 0
+                                ? styles.positiveEffect
+                                : styles.negativeEffect
+                            }
+                          >
+                            {key}: {value > 0 ? `+${value}` : value}
+                          </span>
+                        ))}
+                        <span
+                          className={
+                            impact > 0
+                              ? styles.positiveEffect
+                              : impact < 0
+                              ? styles.negativeEffect
+                              : styles.neutralEffect
+                          }
+                        >
+                          Toplam: {impact > 0 ? `+${impact}` : impact}
+                        </span>
+                      </div>
+                    )}
+                  </motion.button>
+                );
+              })}
             </AnimatePresence>
           </div>
         </motion.div>
@@ -993,34 +1294,40 @@ export default function Game() {
         >
           <h2 className={styles.categoryHeader}>Kategori Seçin</h2>
           <div className={styles.categories}>
-            {Object.keys(stories).map((category, index) => (
-              <motion.button
-                key={category}
-                className={`${styles.categoryButton} ${
-                  completedCategories.includes(category)
-                    ? styles.completedCategory
-                    : ""
-                }`}
-                onClick={() => selectCategory(category)}
-                disabled={completedCategories.includes(category)}
-                initial={{ opacity: 0, scale: 0.9 }}
-                animate={{ opacity: 1, scale: 1 }}
-                transition={{ delay: 0.5 + index * 0.1, duration: 0.3 }}
-                whileHover={
-                  !completedCategories.includes(category) ? { scale: 1.05 } : {}
-                }
-                whileTap={
-                  !completedCategories.includes(category) ? { scale: 0.95 } : {}
-                }
-              >
-                <span className={styles.categoryName}>{category}</span>
-                {completedCategories.includes(category) && (
-                  <span className={styles.categoryScore}>
-                    Puan: {estimatedScores[category] || 0}/10
-                  </span>
-                )}
-              </motion.button>
-            ))}
+            {Object.entries(stories)
+              .filter(([key]) => key !== "newStories") // Filter out newStories
+              .map(([category, story], index) => (
+                <motion.button
+                  key={category}
+                  className={`${styles.categoryButton} ${
+                    completedCategories.includes(category)
+                      ? styles.completedCategory
+                      : ""
+                  }`}
+                  onClick={() => selectCategory(category)}
+                  disabled={completedCategories.includes(category)}
+                  initial={{ opacity: 0, scale: 0.9 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  transition={{ delay: 0.5 + index * 0.1, duration: 0.3 }}
+                  whileHover={
+                    !completedCategories.includes(category)
+                      ? { scale: 1.05 }
+                      : {}
+                  }
+                  whileTap={
+                    !completedCategories.includes(category)
+                      ? { scale: 0.95 }
+                      : {}
+                  }
+                >
+                  <span className={styles.categoryName}>{category}</span>
+                  {completedCategories.includes(category) && (
+                    <span className={styles.categoryScore}>
+                      Puan: {estimatedScores[category] || 0}/10
+                    </span>
+                  )}
+                </motion.button>
+              ))}
           </div>
         </motion.div>
 
@@ -1075,6 +1382,75 @@ export default function Game() {
               Çıkış Yap
             </button>
           </motion.div>
+        )}
+
+        {/* Add a new story notification if available */}
+        {/* {newStoriesAvailable && (
+          <motion.div
+            className={styles.newStoryNotification}
+            initial={{ scale: 0.9, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            transition={{ delay: 0.3, duration: 0.5 }}
+          >
+            <div className={styles.newStoryBadge}>Yeni</div>
+            <h3>Yeni Hikaye Mevcut!</h3>
+            <p>
+              Bu hafta yeni bir hikaye ile karşınızdayız. Denizlispor'un
+              kaderini belirlemek için hemen oyna!
+            </p>
+          </motion.div>
+        )} */}
+
+        {/* Update the completion actions section */}
+        {isAdminPage ? (
+          <motion.div
+            className={styles.completionActions}
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5 }}
+          >
+            <button
+              onClick={startNewStory}
+              className={`${styles.newStoryButton} ${
+                !canStartNewStory ? styles.disabledButton : ""
+              }`}
+              disabled={!canStartNewStory}
+            >
+              {canStartNewStory ? "Yeni Hikaye" : "Lütfen 1 dakika bekleyin"}
+            </button>
+            <button onClick={resetGame} className={styles.replayButton}>
+              Baştan Başla
+            </button>
+          </motion.div>
+        ) : (
+          completedCategories.length === 4 && (
+            <motion.div
+              className={styles.completionActions}
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5 }}
+            >
+              {canStartNewStory ? (
+                <button
+                  onClick={startNewStory}
+                  className={styles.newStoryButton}
+                >
+                  Yeni Hikaye
+                </button>
+              ) : (
+                <p className={styles.waitMessage}>
+                  Yeni hikaye için{" "}
+                  {4 -
+                    Math.floor(
+                      (new Date().getTime() -
+                        (lastStoryCompletionDate?.getTime() || 0)) /
+                        (1000 * 60 * 60 * 24)
+                    )}{" "}
+                  gün kaldı
+                </p>
+              )}
+            </motion.div>
+          )
         )}
       </motion.div>
     );
