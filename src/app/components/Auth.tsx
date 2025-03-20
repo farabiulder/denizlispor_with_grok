@@ -4,10 +4,13 @@ import { useAuth } from "../context/AuthProvider";
 import styles from "../styles/Auth.module.css";
 import { motion } from "framer-motion";
 import { useRouter } from "next/navigation";
+import { supabase } from "../lib/supabaseClient";
 
 export default function Auth() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [firstName, setFirstName] = useState("");
+  const [lastName, setLastName] = useState("");
   const [isLogin, setIsLogin] = useState(true);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -23,7 +26,21 @@ export default function Auth() {
       if (isLogin) {
         await signIn(email, password);
       } else {
-        await signUp(email, password);
+        const { data: authData, error: signUpError } = await signUp(
+          email,
+          password
+        );
+        if (signUpError) throw signUpError;
+
+        if (authData.user) {
+          // Update the users table with name and surname
+          const { error: updateError } = await supabase
+            .from("users")
+            .update({ first_name: firstName, last_name: lastName })
+            .eq("id", authData.user.id);
+
+          if (updateError) throw updateError;
+        }
       }
     } catch (err) {
       setError(
@@ -58,6 +75,34 @@ export default function Auth() {
         {error && <p className={styles.error}>{error}</p>}
 
         <form onSubmit={handleSubmit} className={styles.authForm}>
+          {!isLogin && (
+            <>
+              <div className={styles.formGroup}>
+                <label htmlFor="firstName">Ad</label>
+                <input
+                  id="firstName"
+                  type="text"
+                  value={firstName}
+                  onChange={(e) => setFirstName(e.target.value)}
+                  required={!isLogin}
+                  className={styles.input}
+                />
+              </div>
+
+              <div className={styles.formGroup}>
+                <label htmlFor="lastName">Soyad</label>
+                <input
+                  id="lastName"
+                  type="text"
+                  value={lastName}
+                  onChange={(e) => setLastName(e.target.value)}
+                  required={!isLogin}
+                  className={styles.input}
+                />
+              </div>
+            </>
+          )}
+
           <div className={styles.formGroup}>
             <label htmlFor="email">Email</label>
             <input
@@ -82,13 +127,15 @@ export default function Auth() {
             />
           </div>
 
-          <button
-            type="button"
-            onClick={handleForgotPassword}
-            className={styles.forgotPasswordButton}
-          >
-            Şifremi Unuttum
-          </button>
+          {isLogin && (
+            <button
+              type="button"
+              onClick={handleForgotPassword}
+              className={styles.forgotPasswordButton}
+            >
+              Şifremi Unuttum
+            </button>
+          )}
 
           <motion.button
             type="submit"

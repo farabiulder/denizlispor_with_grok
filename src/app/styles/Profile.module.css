@@ -1,0 +1,246 @@
+.container {
+    min-height: 100vh;
+    background-color: #f5f7fa;
+    position: relative;
+}
+
+.mainContent {
+    padding: 20px;
+    padding-bottom: 70px;
+}
+
+.profileHeader {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-bottom: 30px;
+}
+
+.avatar {
+    width: 100px;
+    height: 100px;
+    background-color: #4ead33;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 40px;
+    color: white;
+    margin-bottom: 15px;
+}
+
+.name {
+    color: #133b5c;
+    font-size: 24px;
+    margin: 0;
+}
+
+.statsContainer {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 30px;
+}
+
+.statCard {
+    background-color: white;
+    padding: 15px;
+    border-radius: 12px;
+    flex: 1;
+    margin: 0 5px;
+    text-align: center;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.statValue {
+    display: block;
+    font-size: 24px;
+    font-weight: 700;
+    color: #4ead33;
+    margin-bottom: 5px;
+}
+
+.statLabel {
+    font-size: 12px;
+    color: #666;
+}
+
+.section {
+    background-color: white;
+    border-radius: 12px;
+    padding: 20px;
+    margin-bottom: 20px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.sectionTitle {
+    color: #133b5c;
+    font-size: 18px;
+    margin-bottom: 15px;
+}
+
+.predictionsList {
+    min-height: 100px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.emptyText {
+    color: #666;
+    font-style: italic;
+}
+
+.settingsList {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.settingButton {
+    background: none;
+    border: none;
+    padding: 12px;
+    text-align: left;
+    color: #133b5c;
+    font-size: 16px;
+    cursor: pointer;
+    border-bottom: 1px solid #eee;
+}
+
+.settingButton:last-child {
+    border-bottom: none;
+}
+
+.settingButton:hover {
+    color: #4ead33;
+}
+
+.settingsForm {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    margin: 1rem 0;
+}
+
+.formGroup {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.label {
+    font-size: 0.9rem;
+    color: #666;
+}
+
+.input {
+    padding: 0.75rem;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    font-size: 1rem;
+    width: 100%;
+}
+
+.input:focus {
+    outline: none;
+    border-color: #007bff;
+    box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.25);
+}
+
+.updateButton {
+    background-color: #007bff;
+    color: white;
+    padding: 0.75rem;
+    border: none;
+    border-radius: 8px;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.updateButton:hover {
+    background-color: #0056b3;
+}
+
+.updateButton:disabled {
+    background-color: #ccc;
+    cursor: not-allowed;
+}
+
+.message {
+    padding: 1rem;
+    border-radius: 8px;
+    margin: 1rem 0;
+    text-align: center;
+}
+
+.message.success {
+    background-color: #d4edda;
+    color: #155724;
+    border: 1px solid #c3e6cb;
+}
+
+.message.error {
+    background-color: #f8d7da;
+    color: #721c24;
+    border: 1px solid #f5c6cb;
+}
+
+.userInfo {
+    padding: 1rem;
+    background-color: #f8f9fa;
+    border-radius: 8px;
+    margin-bottom: 1rem;
+}
+
+.userEmail {
+    font-size: 1rem;
+    color: #333;
+}
+
+.optionLink {
+    display: block;
+    padding: 0.75rem;
+    color: #007bff;
+    text-decoration: none;
+    border-radius: 8px;
+    transition: background-color 0.2s;
+}
+
+.optionLink:hover {
+    background-color: #f8f9fa;
+}
+
+.logoutButton {
+    background-color: #dc3545;
+    color: white;
+    padding: 0.75rem;
+    border: none;
+    border-radius: 8px;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: background-color 0.2s;
+    margin-top: 1rem;
+    width: 100%;
+}
+
+.logoutButton:hover {
+    background-color: #c82333;
+}
+
+.loadingContainer {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    background-color: #f8f9fa;
+}
+
+.loadingSpinner {
+    padding: 20px;
+    border-radius: 8px;
+    background-color: white;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    color: #666;
+    font-size: 1.1rem;
+} 

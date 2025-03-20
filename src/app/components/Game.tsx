@@ -431,12 +431,8 @@ export default function Game() {
       weightedScore += value * weight;
     });
 
-    // Convert to 0-10 scale and add some randomness (±0.5)
-    const randomFactor = Math.random() - 0.5;
-    const finalScore = Math.min(
-      10,
-      Math.max(0, weightedScore / 10 + randomFactor)
-    );
+    // Convert to 0-10 scale without randomness
+    const finalScore = Math.min(10, Math.max(0, weightedScore / 10));
 
     // Round to one decimal place
     return Math.round(finalScore * 10) / 10;
@@ -904,7 +900,6 @@ export default function Game() {
         animate={{ opacity: 1 }}
         transition={{ duration: 0.5 }}
       >
-        <h1 className={styles.title}>Denizlispor Menajerlik</h1>
         <div className={styles.waitingMessage}>
           <h2>Bu haftaki hikayeyi tamamladınız!</h2>
           <p>Yeni hikaye için gelecek haftayı bekleyin.</p>
@@ -942,6 +937,18 @@ export default function Game() {
         animate={{ opacity: 1 }}
         transition={{ duration: 0.5 }}
       >
+        <div className={styles.topBar}>
+          <motion.div
+            className={styles.pointsDisplay}
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.2, duration: 0.5 }}
+          >
+            <span>Toplam Puan:</span>
+            <span className={styles.pointsValue}>{points}</span>
+          </motion.div>
+        </div>
+
         <h1 className={styles.title}>Maç Sonucu</h1>
         <div className={styles.scoreCard}>
           <motion.div
@@ -1089,7 +1096,9 @@ export default function Game() {
         </motion.div>
 
         {/* Only show replay button on admin page */}
-        {isAdminPage && (
+
+        {/* For non-admin pages, show a message about next week */}
+        {isAdminPage ? (
           <motion.div
             className={styles.completionActions}
             initial={{ opacity: 0, y: 20 }}
@@ -1109,20 +1118,36 @@ export default function Game() {
               Baştan Başla
             </button>
           </motion.div>
+        ) : (
+          completedCategories.length === 4 && (
+            <motion.div
+              className={styles.completionActions}
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5 }}
+            >
+              {canStartNewStory ? (
+                <button
+                  onClick={startNewStory}
+                  className={styles.newStoryButton}
+                >
+                  Yeni Hikaye
+                </button>
+              ) : (
+                <p className={styles.waitMessage}>
+                  Yeni hikaye için{" "}
+                  {4 -
+                    Math.floor(
+                      (new Date().getTime() -
+                        (lastStoryCompletionDate?.getTime() || 0)) /
+                        (1000 * 60 * 60 * 24)
+                    )}{" "}
+                  gün kaldı
+                </p>
+              )}
+            </motion.div>
+          )
         )}
-        {/* For non-admin pages, show a message about next week */}
-        {!isAdminPage && (
-          <div className={styles.nextWeekMessage}>
-            <p>Gelecek hafta yeni bir hikaye için tekrar bekleriz!</p>
-          </div>
-        )}
-
-        <button
-          onClick={() => supabase.auth.signOut()}
-          className={styles.signOutButton}
-        >
-          Çıkış Yap
-        </button>
       </motion.div>
     );
   } else if (currentCategory && currentStory) {
@@ -1133,20 +1158,54 @@ export default function Game() {
         animate={{ opacity: 1 }}
         transition={{ duration: 0.5 }}
       >
-        <div className={styles.storyHeader}>
-          <h1 className={styles.categoryTitle}>
-            {currentCategory} - Hikaye {storyCount}/5
-          </h1>
-          <div className={styles.storyProgress}>
-            {[1, 2, 3, 4, 5].map((num) => (
-              <div
-                key={num}
-                className={`${styles.storyStep} ${
-                  num <= storyCount ? styles.activeStep : ""
-                }`}
-              />
+        <div className={styles.topBar}>
+          <motion.div
+            className={styles.pointsDisplay}
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.2, duration: 0.5 }}
+          >
+            <span>Toplam Puan:</span>
+            <span className={styles.pointsValue}>{points}</span>
+          </motion.div>
+        </div>
+
+        <motion.div
+          className={styles.progressBars}
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 0.2, duration: 0.5 }}
+        >
+          <div className={styles.progressBarsContainer}>
+            {Object.entries(progressBars).map(([key, value], index) => (
+              <motion.div
+                key={key}
+                className={styles.progressBarWrapper}
+                initial={{ x: -20, opacity: 0 }}
+                animate={{ x: 0, opacity: 1 }}
+                transition={{ delay: 0.5 + index * 0.1, duration: 0.3 }}
+              >
+                <div className={styles.progressLabel}>
+                  <span>{key}</span>
+                  <span>{value}%</span>
+                </div>
+                <div className={styles.progressBarContainer}>
+                  <motion.div
+                    className={`${styles.progressBarFill} ${
+                      styles[key.toLowerCase()]
+                    }`}
+                    initial={{ width: 0 }}
+                    animate={{ width: `${value}%` }}
+                    transition={{ delay: 0.6 + index * 0.1, duration: 0.5 }}
+                  />
+                </div>
+              </motion.div>
             ))}
           </div>
+        </motion.div>
+
+        <div className={styles.storyHeader}>
+          <h1 className={styles.categoryTitle}>{currentCategory}</h1>
 
           {/* Add admin controls if on admin page */}
           {isAdminPage && (
@@ -1230,39 +1289,6 @@ export default function Game() {
             </AnimatePresence>
           </div>
         </motion.div>
-
-        <motion.div
-          className={styles.progressBars}
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 0.4, duration: 0.5 }}
-        >
-          <h2 className={styles.progressTitle}>Kulüp Durumu</h2>
-          {Object.entries(progressBars).map(([key, value], index) => (
-            <motion.div
-              key={key}
-              className={styles.progressContainer}
-              initial={{ x: -20, opacity: 0 }}
-              animate={{ x: 0, opacity: 1 }}
-              transition={{ delay: 0.5 + index * 0.1, duration: 0.3 }}
-            >
-              <div className={styles.progressLabel}>
-                <span>{key}</span>
-                <span>{value}%</span>
-              </div>
-              <div className={styles.progressBarContainer}>
-                <motion.div
-                  className={`${styles.progressBarFill} ${
-                    styles[key.toLowerCase()]
-                  }`}
-                  initial={{ width: 0 }}
-                  animate={{ width: `${value}%` }}
-                  transition={{ delay: 0.6 + index * 0.1, duration: 0.5 }}
-                />
-              </div>
-            </motion.div>
-          ))}
-        </motion.div>
       </motion.div>
     );
   } else {
@@ -1273,17 +1299,50 @@ export default function Game() {
         animate={{ opacity: 1 }}
         transition={{ duration: 0.5 }}
       >
+        <div className={styles.topBar}>
+          <motion.div
+            className={styles.pointsDisplay}
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.2, duration: 0.5 }}
+          >
+            <span>Toplam Puan:</span>
+            <span className={styles.pointsValue}>{points}</span>
+          </motion.div>
+        </div>
+
         <motion.div
-          className={styles.headerSection}
-          initial={{ y: -20, opacity: 0 }}
-          animate={{ y: 0, opacity: 1 }}
+          className={styles.progressBars}
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
           transition={{ delay: 0.2, duration: 0.5 }}
         >
-          <h1 className={styles.gameTitle}>Denizlispor Menajerlik</h1>
-          <p className={styles.gameDescription}>
-            Stratejik kararlar alarak kulübü finansal zorluklar karşısında
-            yönetin.
-          </p>
+          <div className={styles.progressBarsContainer}>
+            {Object.entries(progressBars).map(([key, value], index) => (
+              <motion.div
+                key={key}
+                className={styles.progressBarWrapper}
+                initial={{ x: -20, opacity: 0 }}
+                animate={{ x: 0, opacity: 1 }}
+                transition={{ delay: 0.5 + index * 0.1, duration: 0.3 }}
+              >
+                <div className={styles.progressLabel}>
+                  <span>{key}</span>
+                  <span>{value}%</span>
+                </div>
+                <div className={styles.progressBarContainer}>
+                  <motion.div
+                    className={`${styles.progressBarFill} ${
+                      styles[key.toLowerCase()]
+                    }`}
+                    initial={{ width: 0 }}
+                    animate={{ width: `${value}%` }}
+                    transition={{ delay: 0.6 + index * 0.1, duration: 0.5 }}
+                  />
+                </div>
+              </motion.div>
+            ))}
+          </div>
         </motion.div>
 
         <motion.div
@@ -1292,7 +1351,9 @@ export default function Game() {
           animate={{ y: 0, opacity: 1 }}
           transition={{ delay: 0.4, duration: 0.5 }}
         >
-          <h2 className={styles.categoryHeader}>Kategori Seçin</h2>
+          <div className={styles.categoriesHeader}>
+            <h2 className={styles.categoryHeader}>Görevler</h2>
+          </div>
           <div className={styles.categories}>
             {Object.entries(stories)
               .filter(([key]) => key !== "newStories") // Filter out newStories
@@ -1311,12 +1372,12 @@ export default function Game() {
                   transition={{ delay: 0.5 + index * 0.1, duration: 0.3 }}
                   whileHover={
                     !completedCategories.includes(category)
-                      ? { scale: 1.05 }
+                      ? { scale: 1.02 }
                       : {}
                   }
                   whileTap={
                     !completedCategories.includes(category)
-                      ? { scale: 0.95 }
+                      ? { scale: 0.98 }
                       : {}
                   }
                 >
@@ -1330,59 +1391,6 @@ export default function Game() {
               ))}
           </div>
         </motion.div>
-
-        <motion.div
-          className={styles.progressBars}
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 0.6, duration: 0.5 }}
-        >
-          <h2 className={styles.progressTitle}>Kulüp Durumu</h2>
-          {Object.entries(progressBars).map(([key, value], index) => (
-            <motion.div
-              key={key}
-              className={styles.progressContainer}
-              initial={{ x: -20, opacity: 0 }}
-              animate={{ x: 0, opacity: 1 }}
-              transition={{ delay: 0.7 + index * 0.1, duration: 0.3 }}
-            >
-              <div className={styles.progressLabel}>
-                <span>{key}</span>
-                <span>{value}%</span>
-              </div>
-              <div className={styles.progressBarContainer}>
-                <motion.div
-                  className={`${styles.progressBarFill} ${
-                    styles[key.toLowerCase()]
-                  }`}
-                  initial={{ width: 0 }}
-                  animate={{ width: `${value}%` }}
-                  transition={{ delay: 0.8 + index * 0.1, duration: 0.5 }}
-                />
-              </div>
-            </motion.div>
-          ))}
-        </motion.div>
-
-        {user && (
-          <motion.div
-            className={styles.userInfo}
-            initial={{ y: 20, opacity: 0 }}
-            animate={{ y: 0, opacity: 1 }}
-            transition={{ delay: 0.9, duration: 0.5 }}
-          >
-            <div className={styles.pointsDisplay}>
-              <span>Toplam Puan:</span>
-              <span className={styles.pointsValue}>{points}</span>
-            </div>
-            <button
-              onClick={() => supabase.auth.signOut()}
-              className={styles.signOutButton}
-            >
-              Çıkış Yap
-            </button>
-          </motion.div>
-        )}
 
         {/* Add a new story notification if available */}
         {/* {newStoriesAvailable && (

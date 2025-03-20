@@ -19,22 +19,22 @@ const financeStory5A: Story = {
   options: [
     { 
       text: "Belediye ve valilikle görüşüp destek iste", 
-      effects: { Finance: 15, Sponsors: 5 }, 
+      effects: { Finance: 1, Sponsors: 1 }, 
       nextStory: { text: "End", options: [] } 
     },
     { 
       text: "Ana sponsorla erken ödeme anlaşması yap", 
-      effects: { Finance: 10, Sponsors: -10 }, 
+      effects: { Finance: 1, Sponsors: -1 }, 
       nextStory: { text: "End", options: [] } 
     },
     { 
       text: "Antrenman tesislerinin bir bölümünü kirala", 
-      effects: { Finance: 20, TechnicalTeam: -15 }, 
+      effects: { Finance: 1, TechnicalTeam: -1 }, 
       nextStory: { text: "End", options: [] } 
     },
     { 
       text: "Taraftar bağış kampanyası başlat", 
-      effects: { Finance: 10, Fans: 15, Sponsors: 5 }, 
+      effects: { Finance: 1, Fans: 1, Sponsors: 1 }, 
       nextStory: { text: "End", options: [] } 
     },
   ],
@@ -45,22 +45,22 @@ const financeStory5B: Story = {
   options: [
     { 
       text: "Sezon sonu anlaşmayla şimdi sat", 
-      effects: { Finance: 30, TechnicalTeam: -5, Fans: 5 }, 
+      effects: { Finance: 1, TechnicalTeam: -1, Fans: 1 }, 
       nextStory: { text: "End", options: [] } 
     },
     { 
       text: "Fiyatı yükselt ve pazarlık yap", 
-      effects: { Finance: 20, TechnicalTeam: -10, Fans: -5 }, 
+      effects: { Finance: 1, TechnicalTeam: -1, Fans: -1 }, 
       nextStory: { text: "End", options: [] } 
     },
     { 
       text: "Teklifi reddet, oyuncuya prim sözü ver", 
-      effects: { Finance: -15, TechnicalTeam: 20, Fans: 15 }, 
+      effects: { Finance: -1, TechnicalTeam: 1, Fans: 1 }, 
       nextStory: { text: "End", options: [] } 
     },
     { 
       text: "Oyuncuyu ikna edip yeni sözleşme imzalat", 
-      effects: { Finance: -10, TechnicalTeam: 15, Fans: 20 }, 
+      effects: { Finance: -1, TechnicalTeam: 1, Fans: 1 }, 
       nextStory: { text: "End", options: [] } 
     },
   ],
@@ -71,22 +71,22 @@ const financeStory4A: Story = {
   options: [
     { 
       text: "Vergi ve SSK borç yapılandırması", 
-      effects: { Finance: 20, Sponsors: 10 }, 
+      effects: { Finance: 1, Sponsors: 1 }, 
       nextStory: financeStory5A 
     },
     { 
       text: "Denizli Atatürk Stadyumu iyileştirmesi", 
-      effects: { Finance: -15, TechnicalTeam: 10, Fans: 25 }, 
+      effects: { Finance: -1, TechnicalTeam: 1, Fans: 1 }, 
       nextStory: financeStory5A 
     },
     { 
       text: "Şimdi 2 oyuncu transferi yap", 
-      effects: { Finance: -10, TechnicalTeam: 25, Fans: 15 }, 
+      effects: { Finance: -1, TechnicalTeam: 1, Fans: 1 }, 
       nextStory: financeStory5B 
     },
     { 
       text: "Halı saha kompleksi inşaatını başlat", 
-      effects: { Finance: -5, TechnicalTeam: 5, Fans: 10, Sponsors: 15 }, 
+      effects: { Finance: -1, TechnicalTeam: 1, Fans: 1, Sponsors: 1 }, 
       nextStory: financeStory5B 
     },
   ],
@@ -97,22 +97,22 @@ const financeStory4B: Story = {
   options: [
     { 
       text: "2 yeni oyuncu transferi sözü ver", 
-      effects: { Fans: 20, Finance: -15, TechnicalTeam: 10 }, 
+      effects: { Fans: 1, Finance: -1, TechnicalTeam: 1 }, 
       nextStory: financeStory5A 
     },
     { 
       text: "Basın toplantısı düzenleyip finansal durumu açıkla", 
-      effects: { Fans: 15, Sponsors: 10, Finance: 5 }, 
+      effects: { Fans: 1, Sponsors: 1, Finance: 1 }, 
       nextStory: financeStory5B 
     },
     { 
       text: "Altyapıdan genç yetenekleri A takıma al", 
-      effects: { Fans: 10, TechnicalTeam: 15, Finance: 10 }, 
+      effects: { Fans: 1, TechnicalTeam: 1, Finance: 1 }, 
       nextStory: financeStory5A 
     },
     { 
       text: "Sosyal medya yorumlarını gizle, sessiz kal", 
-      effects: { Fans: -25, Sponsors: -10, Finance: -5 }, 
+      effects: { Fans: -1, Sponsors: -1, Finance: -1 }, 
       nextStory: financeStory5B 
     },
   ],
@@ -123,22 +123,22 @@ const financeStory3A: Story = {
   options: [
     { 
       text: "5 yıllık finansal yapılandırma planı sun", 
-      effects: { Sponsors: 20, Finance: 15 }, 
+      effects: { Sponsors: 1, Finance: 1 }, 
       nextStory: financeStory4A 
     },
     { 
       text: "Forma reklamlarında indirim teklif et", 
-      effects: { Sponsors: 15, Finance: -5 }, 
+      effects: { Sponsors: 1, Finance: -1 }, 
       nextStory: financeStory4A 
     },
     { 
       text: "Başkanlar Zirvesi toplantısı düzenle", 
-      effects: { Sponsors: 10, Finance: 5, Fans: 10 }, 
+      effects: { Sponsors: 1, Finance: 1, Fans: 1 }, 
       nextStory: financeStory4B 
     },
     { 
       text: "Sponsorlara özel VIP locası tahsis et", 
-      effects: { Sponsors: 15, Finance: -10, Fans: -5 }, 
+      effects: { Sponsors: 1, Finance: -1, Fans: -1 }, 
       nextStory: financeStory4B 
     },
   ],
@@ -149,22 +149,22 @@ const financeStory3B: Story = {
   options: [
     { 
       text: "Kıvaş tesislerindeki ipotekleri kapat", 
-      effects: { Finance: 25, Sponsors: 15 }, 
+      effects: { Finance: 1, Sponsors: 1 }, 
       nextStory: financeStory4A 
     },
     { 
       text: "İncilipınar'da yeni altyapı tesisi aç", 
-      effects: { TechnicalTeam: 25, Finance: -15, Fans: 15 }, 
+      effects: { TechnicalTeam: 1, Finance: -1, Fans: 1 }, 
       nextStory: financeStory4B 
     },
     { 
       text: "Merkez orta saha transferi yap", 
-      effects: { TechnicalTeam: 20, Fans: 15, Finance: -20 }, 
+      effects: { TechnicalTeam: 1, Fans: 1, Finance: -1 }, 
       nextStory: financeStory4A 
     },
     { 
       text: "Paranın yarısını rezerv tut", 
-      effects: { Finance: 20, Sponsors: 5, Fans: -15 }, 
+      effects: { Finance: 1, Sponsors: 1, Fans: -1 }, 
       nextStory: financeStory4B 
     },
   ],
@@ -175,22 +175,22 @@ const financeStory2A: Story = {
   options: [
     { 
       text: "Düşük faizli 3 yıl vadeli teklifini kabul et", 
-      effects: { Finance: 20, Sponsors: 5 }, 
+      effects: { Finance: 1, Sponsors: 1 }, 
       nextStory: financeStory3A 
     },
     { 
       text: "Ödeme takviminde 1 yıl öteleme iste", 
-      effects: { Finance: 15, Sponsors: -5 }, 
+      effects: { Finance: 1, Sponsors: -1 }, 
       nextStory: financeStory3A 
     },
     { 
       text: "Belediye garantörlüğünde yeniden başvur", 
-      effects: { Finance: 10, Sponsors: 15 }, 
+      effects: { Finance: 1, Sponsors: 1 }, 
       nextStory: financeStory3B 
     },
     { 
       text: "Kredi yerine taraftar bono ihracı planla", 
-      effects: { Finance: 5, Sponsors: 5, Fans: 20 }, 
+      effects: { Finance: 1, Sponsors: 1, Fans: 1 }, 
       nextStory: financeStory3B 
     },
   ],
@@ -201,22 +201,22 @@ const financeStory2B: Story = {
   options: [
     { 
       text: "Sezon ortasında hemen sat", 
-      effects: { Finance: 30, TechnicalTeam: -20, Fans: -15 }, 
+      effects: { Finance: 1, TechnicalTeam: -1, Fans: -1 }, 
       nextStory: financeStory3B 
     },
     { 
       text: "22 milyon TL'ye pazarlık yap", 
-      effects: { Finance: 20, TechnicalTeam: -10, Fans: -5 }, 
+      effects: { Finance: 1, TechnicalTeam: -1, Fans: -1 }, 
       nextStory: financeStory3A 
     },
     { 
       text: "Oyuncunun görüşünü al", 
-      effects: { TechnicalTeam: 15, Fans: 10, Finance: -5 }, 
+      effects: { TechnicalTeam: 1, Fans: 1, Finance: -1 }, 
       nextStory: financeStory3B 
     },
     { 
       text: "Sezon sonu 20 milyon TL garantili anlaş", 
-      effects: { TechnicalTeam: 10, Finance: 15, Fans: 5 }, 
+      effects: { TechnicalTeam: 1, Finance: 1, Fans: 1 }, 
       nextStory: financeStory3A 
     },
   ],
@@ -227,22 +227,22 @@ const financeRoot: Story = {
   options: [
     { 
       text: "Yapıkredi'den kredi başvurusu yap", 
-      effects: { Finance: 10, Sponsors: 5, Fans: 5 }, 
+      effects: { Finance: 1, Sponsors: 1, Fans: 1 }, 
       nextStory: financeStory2A // Kredi başvurusu yapılırsa krediyle ilgili hikaye
     },
     { 
       text: "Takım kaptanı Mehmet Akyüz'ü sat", 
-      effects: { Finance: 30, TechnicalTeam: -20, Fans: -15 }, 
+      effects: { Finance: 1, TechnicalTeam: -1, Fans: -1 }, 
       nextStory: financeStory2B // Oyuncu satışı yapılırsa transferle ilgili hikaye
     },
     { 
       text: "Futbolcu maaşlarında %20 kesintiye git", 
-      effects: { Finance: 20, TechnicalTeam: -15, Fans: -5 }, 
+      effects: { Finance: 1, TechnicalTeam: -1, Fans: -1 }, 
       nextStory: financeStory2A // Maaş kesintisi yapılırsa finansal planlamayla ilgili hikaye
     },
     { 
       text: "Denizli iş insanlarını sponsorluk için topla", 
-      effects: { Sponsors: 20, Finance: 15, Fans: 10 }, 
+      effects: { Sponsors: 1, Finance: 1, Fans: 1 }, 
       nextStory: financeStory2B // Sponsorluk aranırsa yatırım planlamasıyla ilgili hikaye
     },
   ],
@@ -257,22 +257,22 @@ const technicalTeamStory5_Experience: Story = {
   options: [
     { 
       text: "Tüm teknik ekibe 2 yıllık yeni sözleşme ve maaş artışı teklif et", 
-      effects: { Finance: -25, TechnicalTeam: 30, Fans: 15 }, 
+      effects: { Finance: -1, TechnicalTeam: 1, Fans: 1 }, 
       nextStory: { text: "End", options: [] } 
     },
     { 
       text: "Ali Tandoğan'ı sportif direktörlüğe yükselt, teknik direktöre yetki ver", 
-      effects: { TechnicalTeam: 20, Finance: -15, Fans: 10 }, 
+      effects: { TechnicalTeam: 1, Finance: -1, Fans: 1 }, 
       nextStory: { text: "End", options: [] } 
     },
     { 
       text: "Mevcut düzeni bozmadan sürdürmeye çalış", 
-      effects: { TechnicalTeam: -10, Finance: 5, Fans: -5 }, 
+      effects: { TechnicalTeam: -1, Finance: 1, Fans: -1 }, 
       nextStory: { text: "End", options: [] } 
     },
     { 
       text: "Eski Denizlisporlu efsane Mustafa Özkan'ı yardımcı antrenör olarak getir", 
-      effects: { TechnicalTeam: 15, Finance: -20, Fans: 25 }, 
+      effects: { TechnicalTeam: 1, Finance: -1, Fans: 1 }, 
       nextStory: { text: "End", options: [] } 
     },
   ],
@@ -285,22 +285,22 @@ const technicalTeamStory5_Youth: Story = {
   options: [
     { 
       text: "Genç teknik ekibin yetkilerini artır, tecrübeli oyuncuları yedek kulübesine çek", 
-      effects: { TechnicalTeam: 25, Fans: 5, Finance: -5 }, 
+      effects: { TechnicalTeam: 1, Fans: 1, Finance: -1 }, 
       nextStory: { text: "End", options: [] } 
     },
     { 
       text: "Bursaspor'un eski hocası Şenol Çorlu'yu mentor olarak getir", 
-      effects: { TechnicalTeam: 20, Finance: -20, Fans: 10 }, 
+      effects: { TechnicalTeam: 1, Finance: -1, Fans: 1 }, 
       nextStory: { text: "End", options: [] } 
     },
     { 
       text: "Tecrübeli oyuncuları kadro dışı bırak, gençlere şans ver", 
-      effects: { TechnicalTeam: 15, Finance: 10, Fans: -15 }, 
+      effects: { TechnicalTeam: 1, Finance: 1, Fans: -1 }, 
       nextStory: { text: "End", options: [] } 
     },
     { 
       text: "Daha uzlaşmacı bir yaklaşımla eski-yeni dengesini kur", 
-      effects: { TechnicalTeam: 10, Fans: 15, Finance: -5 }, 
+      effects: { TechnicalTeam: 1, Fans: 1, Finance: -1 }, 
       nextStory: { text: "End", options: [] } 
     },
   ],
@@ -311,22 +311,22 @@ const technicalTeamStory4A: Story = {
   options: [
     { 
       text: "Sabah-akşam çift antrenman programı uygula", 
-      effects: { TechnicalTeam: 20, Finance: -15, Fans: 5 }, 
+      effects: { TechnicalTeam: 1, Finance: -1, Fans: 1 }, 
       nextStory: technicalTeamStory5_Experience 
     },
     { 
       text: "Kanat oyuncusu ve stoper takviyesi yap", 
-      effects: { Finance: -25, TechnicalTeam: 25, Fans: 15 }, 
+      effects: { Finance: -1, TechnicalTeam: 1, Fans: 1 }, 
       nextStory: technicalTeamStory5_Experience 
     },
     { 
       text: "4-2-3-1 düzenine geri dön", 
-      effects: { TechnicalTeam: -10, Finance: 5, Fans: -5 }, 
+      effects: { TechnicalTeam: -1, Finance: 1, Fans: -1 }, 
       nextStory: technicalTeamStory5_Youth 
     },
     { 
       text: "Taktik geçişi kademeli yap, hazırlık maçları planla", 
-      effects: { TechnicalTeam: 15, Finance: -10, Fans: 10 }, 
+      effects: { TechnicalTeam: 1, Finance: -1, Fans: 1 }, 
       nextStory: technicalTeamStory5_Youth 
     },
   ],
@@ -337,22 +337,22 @@ const technicalTeamStory4B: Story = {
   options: [
     { 
       text: "Direkt A takıma alıp Süper Lig maçında ilk 11'de oynat", 
-      effects: { TechnicalTeam: 20, Fans: 25, Finance: -5 }, 
+      effects: { TechnicalTeam: 1, Fans: 1, Finance: -1 }, 
       nextStory: technicalTeamStory5_Experience 
     },
     { 
       text: "Samsunspor'a 1 yıllığına kiralık gönder", 
-      effects: { Finance: 15, TechnicalTeam: 10, Fans: -10 }, 
+      effects: { Finance: 1, TechnicalTeam: 1, Fans: -1 }, 
       nextStory: technicalTeamStory5_Youth 
     },
     { 
       text: "A takımla antrenman yaptırıp gençlik kupasında oynamaya devam ettir", 
-      effects: { TechnicalTeam: 15, Fans: 5, Finance: 5 }, 
+      effects: { TechnicalTeam: 1, Fans: 1, Finance: 1 }, 
       nextStory: technicalTeamStory5_Experience 
     },
     { 
       text: "Gelişimini hızlandırmak için özel antrenör tut", 
-      effects: { TechnicalTeam: 25, Finance: -20, Fans: 10 }, 
+      effects: { TechnicalTeam: 1, Finance: -1, Fans: 1 }, 
       nextStory: technicalTeamStory5_Youth 
     },
   ],
@@ -363,22 +363,22 @@ const technicalTeamStory3A: Story = {
   options: [
     { 
       text: "Haftada 5 güne düşür, yoga ve pilates ekle", 
-      effects: { TechnicalTeam: 15, Finance: -10, Fans: 5 }, 
+      effects: { TechnicalTeam: 1, Finance: -1, Fans: 1 }, 
       nextStory: technicalTeamStory4A 
     },
     { 
       text: "Teknik direktör ve kaptan arasında arabuluculuk yap", 
-      effects: { TechnicalTeam: 20, Finance: -5, Fans: 10 }, 
+      effects: { TechnicalTeam: 1, Finance: -1, Fans: 1 }, 
       nextStory: technicalTeamStory4B 
     },
     { 
       text: "GPS takip sistemi ile antrenman yoğunluğunu analiz et", 
-      effects: { TechnicalTeam: 15, Finance: -20, Fans: 5 }, 
+      effects: { TechnicalTeam: 1, Finance: -1, Fans: 1 }, 
       nextStory: technicalTeamStory4A 
     },
     { 
       text: "Kaptanı teknik direktörle baş başa görüştür", 
-      effects: { TechnicalTeam: -5, Finance: 0, Fans: -10 }, 
+      effects: { TechnicalTeam: -1, Finance: 0, Fans: -1 }, 
       nextStory: technicalTeamStory4B 
     },
   ],
@@ -389,22 +389,22 @@ const technicalTeamStory3B: Story = {
   options: [
     { 
       text: "Hemen 3+1 yıllık sözleşme ve 600 bin euro teklif et", 
-      effects: { Finance: -25, TechnicalTeam: 25, Fans: 10 }, 
+      effects: { Finance: -1, TechnicalTeam: 1, Fans: 1 }, 
       nextStory: technicalTeamStory4A 
     },
     { 
       text: "2 haftalık deneme süresine davet et", 
-      effects: { TechnicalTeam: 15, Finance: -5, Fans: 5 }, 
+      effects: { TechnicalTeam: 1, Finance: -1, Fans: 1 }, 
       nextStory: technicalTeamStory4B 
     },
     { 
       text: "Önce maçlarını canlı izle, sonra görüşme yap", 
-      effects: { TechnicalTeam: 10, Finance: -10, Fans: 0 }, 
+      effects: { TechnicalTeam: 1, Finance: -1, Fans: 0 }, 
       nextStory: technicalTeamStory4A 
     },
     { 
       text: "Rakip takımların ilgisini ölç, sonra karar ver", 
-      effects: { TechnicalTeam: 5, Finance: 0, Fans: 0 }, 
+      effects: { TechnicalTeam: 1, Finance: 0, Fans: 0 }, 
       nextStory: technicalTeamStory4B 
     },
   ],
@@ -415,22 +415,22 @@ const technicalTeamStory2A: Story = {
   options: [
     { 
       text: "19-21 yaş arası yetenekleri A takıma dahil et", 
-      effects: { TechnicalTeam: 20, Finance: -10, Fans: 15 }, 
+      effects: { TechnicalTeam: 1, Finance: -1, Fans: 1 }, 
       nextStory: technicalTeamStory3A 
     },
     { 
       text: "3-5-2 sistemine geçiş hazırlıkları başlat", 
-      effects: { TechnicalTeam: 15, Finance: -15, Fans: 10 }, 
+      effects: { TechnicalTeam: 1, Finance: -1, Fans: 1 }, 
       nextStory: technicalTeamStory3B 
     },
     { 
       text: "HIIT ve fonksiyonel antrenmanlarla kondisyon artır", 
-      effects: { TechnicalTeam: 10, Finance: -10, Fans: 5 }, 
+      effects: { TechnicalTeam: 1, Finance: -1, Fans: 1 }, 
       nextStory: technicalTeamStory3A 
     },
     { 
       text: "Mevcut 4-2-3-1 düzeninde ince ayarlar yap", 
-      effects: { TechnicalTeam: 5, Finance: -5, Fans: 0 }, 
+      effects: { TechnicalTeam: 1, Finance: -1, Fans: 0 }, 
       nextStory: technicalTeamStory3B 
     },
   ],
@@ -441,22 +441,22 @@ const technicalTeamStory2B: Story = {
   options: [
     { 
       text: "Fenerbahçe altyapısından Eser Özaltındere'yi getir", 
-      effects: { Finance: -25, TechnicalTeam: 25, Fans: 10 }, 
+      effects: { Finance: -1, TechnicalTeam: 1, Fans: 1 }, 
       nextStory: technicalTeamStory3A 
     },
     { 
       text: "PAF takım antrenörü Ahmet Duman'ı terfi ettir", 
-      effects: { TechnicalTeam: 15, Finance: -5, Fans: 15 }, 
+      effects: { TechnicalTeam: 1, Finance: -1, Fans: 1 }, 
       nextStory: technicalTeamStory3B 
     },
     { 
       text: "Eski Denizlisporlu Mustafa Özkan'ı ikna et", 
-      effects: { TechnicalTeam: 20, Finance: -15, Fans: 25 }, 
+      effects: { TechnicalTeam: 1, Finance: -1, Fans: 1 }, 
       nextStory: technicalTeamStory3A 
     },
     { 
       text: "Scout ekibi başkanına geçici yetki ver", 
-      effects: { TechnicalTeam: -5, Finance: 0, Fans: -5 }, 
+      effects: { TechnicalTeam: -1, Finance: 0, Fans: -1 }, 
       nextStory: technicalTeamStory3B 
     },
   ],
@@ -467,22 +467,22 @@ const technicalTeamRoot: Story = {
   options: [
     { 
       text: "Lech Poznan'dan Bosnalı antrenör Faruk Hadžić'i transfer et", 
-      effects: { Finance: -20, TechnicalTeam: 25, Fans: 5 }, 
+      effects: { Finance: -1, TechnicalTeam: 1, Fans: 1 }, 
       nextStory: technicalTeamStory2A 
     },
     { 
       text: "Altyapı hocalarından Ahmet Duman'ı terfi ettir", 
-      effects: { TechnicalTeam: 15, Finance: -5, Fans: 10 }, 
+      effects: { TechnicalTeam: 1, Finance: -1, Fans: 1 }, 
       nextStory: technicalTeamStory2B 
     },
     { 
       text: "İngiliz set oyunu uzmanı Mike Phelan'ı getir", 
-      effects: { Finance: -25, TechnicalTeam: 30, Fans: 0 }, 
+      effects: { Finance: -1, TechnicalTeam: 1, Fans: 0 }, 
       nextStory: technicalTeamStory2A 
     },
     { 
       text: "Bütçe yok, teknik direktöre talebi için şu an uygun olmadığını söyle", 
-      effects: { Finance: 10, TechnicalTeam: -15, Fans: -5 }, 
+      effects: { Finance: 1, TechnicalTeam: -1, Fans: -1 }, 
       nextStory: technicalTeamStory2B 
     },
   ],
@@ -496,22 +496,22 @@ const sponsorStory5A: Story = {
   options: [
     { 
       text: "Horoz Cafe'de taraftarlarla buluşup görüşlerini dinle", 
-      effects: { Fans: 25, Sponsors: 5, Finance: -5 }, 
+      effects: { Fans: 1, Sponsors: 1, Finance: -1 }, 
       nextStory: { text: "End", options: [] } 
     },
     { 
       text: "Alternatif deplasman forması için oylama düzenle", 
-      effects: { Fans: 20, Sponsors: 0, Finance: -10 }, 
+      effects: { Fans: 1, Sponsors: 0, Finance: -1 }, 
       nextStory: { text: "End", options: [] } 
     },
     { 
       text: "Denizli Cam ve taraftar temsilcileriyle ortak basın toplantısı düzenle", 
-      effects: { Fans: 15, Sponsors: 15, Finance: -5 }, 
+      effects: { Fans: 1, Sponsors: 1, Finance: -1 }, 
       nextStory: { text: "End", options: [] } 
     },
     { 
       text: "Tasarım sanat direktörüyle röportaj yapıp konsepti anlat", 
-      effects: { Fans: 10, Sponsors: 10, Finance: 0 }, 
+      effects: { Fans: 1, Sponsors: 1, Finance: 0 }, 
       nextStory: { text: "End", options: [] } 
     },
   ],
@@ -522,22 +522,22 @@ const sponsorStory5B: Story = {
   options: [
     { 
       text: "Özel VIP deneyimi ve maç günü etkinlikleri ile talebi destekle", 
-      effects: { Finance: 15, Sponsors: 20, Fans: 5 }, 
+      effects: { Finance: 1, Sponsors: 1, Fans: 1 }, 
       nextStory: { text: "End", options: [] } 
     },
     { 
       text: "Sponsorluk paketini yeniden yapılandır, ödeme takvimini esnet", 
-      effects: { Finance: 10, Sponsors: 15, Fans: 0 }, 
+      effects: { Finance: 1, Sponsors: 1, Fans: 0 }, 
       nextStory: { text: "End", options: [] } 
     },
     { 
       text: "Stadyumda Pamukkale Corner bölümü oluştur", 
-      effects: { Finance: 5, Sponsors: 25, Fans: 10 }, 
+      effects: { Finance: 1, Sponsors: 1, Fans: 1 }, 
       nextStory: { text: "End", options: [] } 
     },
     { 
       text: "Talebinden kısmen vazgeç, uzun vadeli anlaşma imzala", 
-      effects: { Finance: -10, Sponsors: 15, Fans: 5 }, 
+      effects: { Finance: -1, Sponsors: 1, Fans: 1 }, 
       nextStory: { text: "End", options: [] } 
     },
   ],
@@ -548,22 +548,22 @@ const sponsorStory5C: Story = {
   options: [
     { 
       text: "Tüm sosyal medya ve dijital varlıklarda Eti'ye tam erişim ver", 
-      effects: { Sponsors: 25, Finance: 20, Fans: -10 }, 
+      effects: { Sponsors: 1, Finance: 1, Fans: -1 }, 
       nextStory: { text: "End", options: [] } 
     },
     { 
       text: "Web sitesi ve mobil uygulamada özel bölüm tahsis et", 
-      effects: { Sponsors: 20, Finance: 15, Fans: 0 }, 
+      effects: { Sponsors: 1, Finance: 1, Fans: 0 }, 
       nextStory: { text: "End", options: [] } 
     },
     { 
       text: "Taraftarlar için Eti ürünlerinde indirim kampanyası başlat", 
-      effects: { Sponsors: 15, Fans: 20, Finance: 10 }, 
+      effects: { Sponsors: 1, Fans: 1, Finance: 1 }, 
       nextStory: { text: "End", options: [] } 
     },
     { 
       text: "Denizlispor Futbol Akademisi'ne 'Eti' ismini ver", 
-      effects: { Sponsors: 20, TechnicalTeam: 15, Fans: 5 }, 
+      effects: { Sponsors: 1, TechnicalTeam: 1, Fans: 1 }, 
       nextStory: { text: "End", options: [] } 
     },
   ],
@@ -574,22 +574,22 @@ const sponsorStory5D: Story = {
   options: [
     { 
       text: "Pepsi ile acil görüşme ayarla", 
-      effects: { Sponsors: 10, Finance: -5, Fans: -5 }, 
+      effects: { Sponsors: 1, Finance: -1, Fans: -1 }, 
       nextStory: { text: "End", options: [] } 
     },
     { 
       text: "Vali ve belediye başkanını arabulucu olarak devreye sok", 
-      effects: { Sponsors: 15, Finance: 0, Fans: 10 }, 
+      effects: { Sponsors: 1, Finance: 0, Fans: 1 }, 
       nextStory: { text: "End", options: [] } 
     },
     { 
       text: "Taraftar gruplarıyla boykot kampanyası başlat", 
-      effects: { Sponsors: -20, Finance: -15, Fans: 25 }, 
+      effects: { Sponsors: -1, Finance: -1, Fans: 1 }, 
       nextStory: { text: "End", options: [] } 
     },
     { 
       text: "Daha küçük yerel içecek firmalarıyla görüş", 
-      effects: { Sponsors: 5, Finance: -10, Fans: 15 }, 
+      effects: { Sponsors: 1, Finance: -1, Fans: 1 }, 
       nextStory: { text: "End", options: [] } 
     },
   ],
@@ -601,22 +601,22 @@ const sponsorStory4: Story = {
   options: [
     { 
       text: "Taraftarın tepkisini göze alıp tasarımı değiştir", 
-      effects: { Sponsors: 25, Fans: -20, Finance: 15 }, 
+      effects: { Sponsors: 1, Fans: -1, Finance: 1 }, 
       nextStory: sponsorStory5A 
     },
     { 
       text: "Tasarım değişikliği için ek 2 milyon TL talep et", 
-      effects: { Sponsors: -10, Finance: 25, Fans: -5 }, 
+      effects: { Sponsors: -1, Finance: 1, Fans: -1 }, 
       nextStory: sponsorStory5B 
     },
     { 
       text: "Forma arkasında daha büyük logo ve omuzlarda branding öner", 
-      effects: { Sponsors: 20, Fans: 10, Finance: 10 }, 
+      effects: { Sponsors: 1, Fans: 1, Finance: 1 }, 
       nextStory: sponsorStory5C 
     },
     { 
       text: "Kulübün 'Horoz' kimliğinin değiştirilemeyeceğini belirt", 
-      effects: { Sponsors: -15, Finance: -10, Fans: 25 }, 
+      effects: { Sponsors: -1, Finance: -1, Fans: 1 }, 
       nextStory: sponsorStory5D 
     },
   ],
@@ -628,22 +628,22 @@ const sponsorStory3: Story = {
   options: [
     { 
       text: "Denizli Atatürk Coca-Cola Arena olarak kabul et", 
-      effects: { Sponsors: 30, Finance: 25, Fans: -25 }, 
+      effects: { Sponsors: 1, Finance: 1, Fans: -1 }, 
       nextStory: sponsorStory4 
     },
     { 
       text: "Stadın ismini koruma şartıyla 'Coca-Cola sunar' formülü öner", 
-      effects: { Sponsors: 20, Finance: 15, Fans: 5 }, 
+      effects: { Sponsors: 1, Finance: 1, Fans: 1 }, 
       nextStory: sponsorStory4 
     },
     { 
       text: "Sosyal medyada anket düzenleyip taraftar görüşü al", 
-      effects: { Sponsors: -5, Fans: 25, Finance: -5 }, 
+      effects: { Sponsors: -1, Fans: 1, Finance: -1 }, 
       nextStory: sponsorStory4 
     },
     { 
       text: "Atatürk isminin korunması gerektiğini belirtip teklifi reddet", 
-      effects: { Sponsors: -15, Fans: 30, Finance: -20 }, 
+      effects: { Sponsors: -1, Fans: 1, Finance: -1 }, 
       nextStory: sponsorStory4 
     },
   ],
@@ -654,22 +654,22 @@ const sponsorStory2A_NewPackage: Story = {
   options: [
     { 
       text: "LC Waikiki'nin yüksek teklifini değerlendir", 
-      effects: { Sponsors: 25, Finance: 20, Fans: -5 }, 
+      effects: { Sponsors: 1, Finance: 1, Fans: -1 }, 
       nextStory: sponsorStory3 
     },
     { 
       text: "Uzun yıllardır destek veren Pamukkale Turizm'e öncelik tanı", 
-      effects: { Sponsors: 15, Finance: 15, Fans: 15 }, 
+      effects: { Sponsors: 1, Finance: 1, Fans: 1 }, 
       nextStory: sponsorStory3 
     },
     { 
       text: "Denizli Cam ile şehir markası ortaklığına odaklan", 
-      effects: { Sponsors: 20, Fans: 20, Finance: 10 }, 
+      effects: { Sponsors: 1, Fans: 1, Finance: 1 }, 
       nextStory: sponsorStory3 
     },
     { 
       text: "Aynı anda üç firmayla da farklı alanlarda anlaş", 
-      effects: { Sponsors: 30, Finance: 15, Fans: 5 }, 
+      effects: { Sponsors: 1, Finance: 1, Fans: 1 }, 
       nextStory: sponsorStory3 
     },
   ],
@@ -680,22 +680,22 @@ const sponsorStory5: Story = {
   options: [
     { 
       text: "5 yıllık uzun vadeli anlaşma teklif et", 
-      effects: { Sponsors: 25, Finance: 20, Fans: 5 }, 
+      effects: { Sponsors: 1, Finance: 1, Fans: 1 }, 
       nextStory: { text: "End", options: [] } 
     },
     { 
       text: "Yıllık %20 artışla 3 yıllık anlaşma iste", 
-      effects: { Sponsors: 20, Finance: 25, Fans: 0 }, 
+      effects: { Sponsors: 1, Finance: 1, Fans: 0 }, 
       nextStory: { text: "End", options: [] } 
     },
     { 
       text: "Lige göre değişen primli sistem öner (Süper Lig'de bonus)", 
-      effects: { Sponsors: 15, TechnicalTeam: 10, Finance: 15 }, 
+      effects: { Sponsors: 1, TechnicalTeam: 1, Finance: 1 }, 
       nextStory: { text: "End", options: [] } 
     },
     { 
       text: "Hem forma hem stadyum isim hakkı için paket teklif sun", 
-      effects: { Sponsors: 30, Finance: 30, Fans: -15 }, 
+      effects: { Sponsors: 1, Finance: 1, Fans: -1 }, 
       nextStory: { text: "End", options: [] } 
     },
   ],
@@ -706,22 +706,22 @@ const sponsorStory2: Story = {
   options: [
     { 
       text: "6 aylık ödeme erteleme ile esneklik göster", 
-      effects: { Sponsors: 20, Finance: -15, Fans: 5 }, 
+      effects: { Sponsors: 1, Finance: -1, Fans: 1 }, 
       nextStory: sponsorStory3 
     },
     { 
       text: "Sözleşme şartlarını hatırlat, alternatif firmalarla görüştüğünü belirt", 
-      effects: { Sponsors: -20, Finance: 15, Fans: -5 }, 
+      effects: { Sponsors: -1, Finance: 1, Fans: -1 }, 
       nextStory: sponsorStory3 
     },
     { 
       text: "Ödeme indirimi karşılığında sözleşme süresini uzat", 
-      effects: { Sponsors: 15, Finance: -5, Fans: 10 }, 
+      effects: { Sponsors: 1, Finance: -1, Fans: 1 }, 
       nextStory: sponsorStory3 
     },
     { 
       text: "Vade farkıyla kademeli ödeme planı sun", 
-      effects: { Sponsors: 10, Finance: 10, Fans: 0 }, 
+      effects: { Sponsors: 1, Finance: 1, Fans: 0 }, 
       nextStory: sponsorStory3 
     },
   ],
@@ -732,22 +732,22 @@ const sponsorsRoot: Story = {
   options: [
     { 
       text: "Dijital varlıklara odaklanan yeni sponsorluk paketi hazırla", 
-      effects: { Sponsors: 20, Finance: 5, Fans: 10 }, 
-      nextStory: sponsorStory2A_NewPackage // Yeni paket hazırlanırsa ilgili hikaye
+      effects: { Sponsors: 1, Finance: 1, Fans: 1 }, 
+      nextStory: sponsorStory2A_NewPackage
     },
     { 
       text: "Mevcut sponsorlarla pandemi dayanışma toplantısı düzenle", 
-      effects: { Sponsors: 15, Finance: 10, Fans: 5 }, 
+      effects: { Sponsors: 1, Finance: 1, Fans: 1 }, 
       nextStory: sponsorStory2 
     },
     { 
       text: "Ulusal ve uluslararası büyük markalarla görüşmeler başlat", 
-      effects: { Sponsors: 25, Finance: -5, Fans: -5 }, 
+      effects: { Sponsors: 1, Finance: -1, Fans: -1 }, 
       nextStory: sponsorStory2 
     },
     { 
       text: "Denizli yerel iş insanları ve KOBİ'lere yönel", 
-      effects: { Sponsors: 15, Fans: 20, Finance: 5 }, 
+      effects: { Sponsors: 1, Fans: 1, Finance: 1 }, 
       nextStory: sponsorStory2 
     },
   ],
@@ -759,22 +759,22 @@ const fansStory5: Story = {
   options: [
     { 
       text: "Takım kaptanı ve teknik direktörle birlikte kampanyaya katıl", 
-      effects: { Fans: 30, Sponsors: 10, TechnicalTeam: 15 }, 
+      effects: { Fans: 1, Sponsors: 1, TechnicalTeam: 1 }, 
       nextStory: { text: "End", options: [] } 
     },
     { 
       text: "Kampanyayı destekle ama mesafeni koru", 
-      effects: { Fans: 10, Sponsors: 15, TechnicalTeam: 5 }, 
+      effects: { Fans: 1, Sponsors: 1, TechnicalTeam: 1 }, 
       nextStory: { text: "End", options: [] } 
     },
     { 
       text: "#DenizliHorozu etiketiyle resmi kulüp kampanyası başlat", 
-      effects: { Fans: 20, Finance: -10, Sponsors: 15 }, 
+      effects: { Fans: 1, Finance: -1, Sponsors: 1 }, 
       nextStory: { text: "End", options: [] } 
     },
     { 
       text: "Sportif konulara odaklan, kampanyayı görmezden gel", 
-      effects: { Fans: -20, Sponsors: -5, TechnicalTeam: 10 }, 
+      effects: { Fans: -1, Sponsors: -1, TechnicalTeam: 1 }, 
       nextStory: { text: "End", options: [] } 
     },
   ],
@@ -785,7 +785,7 @@ const fansStory4A: Story = {
   options: [
     {
       text: "Tam biletlerde %20 daha indirim yapıp doluluk oranını maksimize et",
-      effects: { Fans: 25, Finance: -20, Sponsors: 15 },
+      effects: { Fans: 1, Finance: -1, Sponsors: 1 },
       nextStory: {
         text: "Stadyum doluluk oranı %85'e yükseldi. Taraftar desteği arttı, sponsorlar kalabalık tribünlerden memnun ancak bilet gelirleri düştü.",
         options: []
@@ -793,7 +793,7 @@ const fansStory4A: Story = {
     },
     {
       text: "Mevcut fiyatları koru, kombine kampanyasına odaklan",
-      effects: { Fans: 15, Finance: 10, Sponsors: 10 },
+      effects: { Fans: 1, Finance: 1, Sponsors: 1 },
       nextStory: {
         text: "Kombine kampanyası ilgi gördü, finansal denge korundu. Taraftarlar da makul fiyatlandırmadan memnun.",
         options: []
@@ -801,7 +801,7 @@ const fansStory4A: Story = {
     },
     {
       text: "Premium tribün ve VIP localar oluştur",
-      effects: { Fans: 5, Finance: 25, Sponsors: 20 },
+      effects: { Fans: 1, Finance: 1, Sponsors: 1 },
       nextStory: {
         text: "VIP alanlar Denizli iş dünyasının ilgisini çekti. Gelir arttı ancak bazı taraftarlar kulübün ticarileştiğini düşünüyor.",
         options: []
@@ -809,7 +809,7 @@ const fansStory4A: Story = {
     },
     {
       text: "Taraftar ürünleri ve maç içi harcamalara yönel",
-      effects: { Fans: 15, Finance: 15, Sponsors: 5 },
+      effects: { Fans: 1, Finance: 1, Sponsors: 1 },
       nextStory: {
         text: "Forma satışları ve stadyum içi harcamalar arttı. Taraftarlar kulübe hem tribünde hem ekonomik olarak destek veriyor.",
         options: []
@@ -823,7 +823,7 @@ const fansStory4B: Story = {
   options: [
     {
       text: "Kombine sahiplerine özel futbolcularla buluşma etkinliği düzenle",
-      effects: { Fans: 25, TechnicalTeam: 10, Finance: -5 },
+      effects: { Fans: 1, TechnicalTeam: 1, Finance: -1 },
       nextStory: {
         text: "Taraftar-futbolcu buluşması büyük ilgi gördü. Takım motivasyonu yükseldi ve taraftar aidiyet duygusu güçlendi.",
         options: []
@@ -831,7 +831,7 @@ const fansStory4B: Story = {
     },
     {
       text: "Kombine sahiplerine özel indirimli forma kampanyası başlat",
-      effects: { Fans: 20, Finance: 15, Sponsors: 5 },
+      effects: { Fans: 1, Finance: 1, Sponsors: 1 },
       nextStory: {
         text: "Forma satışları patladı, taraftarlar maçlara yeni formalarıyla geliyor. Stadyum görsel şölene dönüştü.",
         options: []
@@ -839,7 +839,7 @@ const fansStory4B: Story = {
     },
     {
       text: "Deplasman maçları için kombine sahiplerine özel otobüs seferleri düzenle",
-      effects: { Fans: 30, Finance: -15, TechnicalTeam: 15 },
+      effects: { Fans: 1, Finance: -1, TechnicalTeam: 1 },
       nextStory: {
         text: "Deplasman desteği arttı, takım her yerde kalabalık taraftar desteği buluyor. Moral yüksek ancak organizasyon masrafları da arttı.",
         options: []
@@ -847,7 +847,7 @@ const fansStory4B: Story = {
     },
     {
       text: "Kombine hedefini 10,000'e çıkarıp taraftar gruplarına satış primi ver",
-      effects: { Fans: 15, Finance: 20, Sponsors: 10 },
+      effects: { Fans: 1, Finance: 1, Sponsors: 1 },
       nextStory: {
         text: "Taraftar grupları aktif satış çabalarıyla kombine hedefi aşıldı. Kulüp gelirleri yükseldi ve tribünler her maç dolu.",
         options: []
@@ -861,7 +861,7 @@ const fansStory4C: Story = {
   options: [
     {
       text: "Eski Denizlisporlu efsanelerle 'Horoz Nostalji Gecesi' düzenle",
-      effects: { Fans: 30, Finance: -10, Sponsors: 10 },
+      effects: { Fans: 1, Finance: -1, Sponsors: 1 },
       nextStory: {
         text: "2003-2004 sezonu UEFA Kupası kadrosunun buluştuğu nostalji gecesi muhteşem geçti. Taraftarlar duygusal anlar yaşadı.",
         options: []
@@ -869,7 +869,7 @@ const fansStory4C: Story = {
     },
     {
       text: "Maç öncesi taraftar festivallerine başla",
-      effects: { Fans: 20, Sponsors: 25, Finance: -5 },
+      effects: { Fans: 1, Sponsors: 1, Finance: -1 },
       nextStory: {
         text: "Stadyum çevresinde düzenlenen festivaller hem taraftar deneyimini geliştirdi hem de sponsorlara yeni alanlar açtı.",
         options: []
@@ -877,7 +877,7 @@ const fansStory4C: Story = {
     },
     {
       text: "Denizlispor Taraftar Konseyi kur ve karar süreçlerine dahil et",
-      effects: { Fans: 25, TechnicalTeam: -5, Finance: 0 },
+      effects: { Fans: 1, TechnicalTeam: -1, Finance: 0 },
       nextStory: {
         text: "Taraftar Konseyi fikri büyük ilgi gördü. Taraftarlar kulüple daha bütünleşik hissediyor ancak teknik ekip kararlara müdahale endişesi yaşıyor.",
         options: []
@@ -885,7 +885,7 @@ const fansStory4C: Story = {
     },
     {
       text: "Taraftar gruplarıyla üç ayda bir düzenli toplantı planı oluştur",
-      effects: { Fans: 15, TechnicalTeam: 5, Sponsors: 5 },
+      effects: { Fans: 1, TechnicalTeam: 1, Sponsors: 1 },
       nextStory: {
         text: "Düzenli iletişim kanalları sayesinde taraftar-yönetim ilişkileri güçlendi. Sorunlar büyümeden çözülmeye başladı.",
         options: []
@@ -899,7 +899,7 @@ const fansStory4D: Story = {
   options: [
     {
       text: "Acil kamuoyu açıklaması yapıp taraftarlardan özür dile",
-      effects: { Fans: 20, Finance: 0, TechnicalTeam: 5 },
+      effects: { Fans: 1, Finance: 0, TechnicalTeam: 1 },
       nextStory: {
         text: "Özür açıklamanız taraftar grupları tarafından olumlu karşılandı. Eylem sonlandırıldı ve ilişkiler onarılmaya başladı.",
         options: []
@@ -907,7 +907,7 @@ const fansStory4D: Story = {
     },
     {
       text: "Taraftar liderlerini acil toplantıya çağır",
-      effects: { Fans: 25, Finance: -5, TechnicalTeam: 0 },
+      effects: { Fans: 1, Finance: -1, TechnicalTeam: 0 },
       nextStory: {
         text: "Acil toplantıda taraftar temsilcileri sorunlarını doğrudan iletebildi. Somut adımlar planlandı ve eylem son buldu.",
         options: []
@@ -915,7 +915,7 @@ const fansStory4D: Story = {
     },
     {
       text: "Futbolcuların taraftarla buluşmasını organize et",
-      effects: { Fans: 15, TechnicalTeam: 15, Finance: -10 },
+      effects: { Fans: 1, TechnicalTeam: 1, Finance: -1 },
       nextStory: {
         text: "Oyuncuların taraftarla buluşması tansiyonu düşürdü ancak bazı taraftar grupları yönetimin sorumluluktan kaçtığını düşünüyor.",
         options: []
@@ -923,7 +923,7 @@ const fansStory4D: Story = {
     },
     {
       text: "Eylemcilere stadyum yasağı getir",
-      effects: { Fans: -25, Finance: -15, Sponsors: -10 },
+      effects: { Fans: -1, Finance: -1, Sponsors: -1 },
       nextStory: {
         text: "Yasak kararı büyük tepki topladı. Taraftar grupları birleşti ve protestolar büyüdü. Kriz derinleşiyor.",
         options: []
@@ -937,22 +937,22 @@ const fansStory3: Story = {
   options: [
     { 
       text: "Pamukkale Üniversitesi'nde halka açık forum düzenle", 
-      effects: { Fans: 25, TechnicalTeam: 5, Finance: -10 }, 
+      effects: { Fans: 1, TechnicalTeam: 1, Finance: -1 }, 
       nextStory: fansStory4A 
     },
     { 
       text: "Dernek başkanlarıyla kulüp tesislerinde özel toplantı yap", 
-      effects: { Fans: 15, TechnicalTeam: 10, Finance: -5 }, 
+      effects: { Fans: 1, TechnicalTeam: 1, Finance: -1 }, 
       nextStory: fansStory4B 
     },
     { 
       text: "Kulüp web sitesinden detaylı yazılı açıklama yap", 
-      effects: { Fans: 5, Sponsors: 10, Finance: 0 }, 
+      effects: { Fans: 1, Sponsors: 1, Finance: 0 }, 
       nextStory: fansStory4C 
     },
     { 
       text: "Sezon sonu geniş katılımlı toplantı vaadiyle görüşmeyi ertele", 
-      effects: { Fans: -15, TechnicalTeam: 5, Finance: 5 }, 
+      effects: { Fans: -1, TechnicalTeam: 1, Finance: 1 }, 
       nextStory: fansStory4D 
     },
   ],
@@ -963,22 +963,22 @@ const fansStory2: Story = {
   options: [
     { 
       text: "Denizli Öğretmenevi'nde taraftarla açık buluşma düzenle", 
-      effects: { Fans: 25, TechnicalTeam: 5, Finance: -5 }, 
+      effects: { Fans: 1, TechnicalTeam: 1, Finance: -1 }, 
       nextStory: fansStory3 
     },
     { 
       text: "Teknik direktör ve başkanla birlikte basın toplantısı yap", 
-      effects: { Fans: 15, Sponsors: 10, TechnicalTeam: 10 }, 
+      effects: { Fans: 1, Sponsors: 1, TechnicalTeam: 1 }, 
       nextStory: fansStory3 
     },
     { 
       text: "Takım kaptanıyla birlikte taraftara video mesaj yayınla", 
-      effects: { Fans: 20, Sponsors: 15, TechnicalTeam: 5 }, 
+      effects: { Fans: 1, Sponsors: 1, TechnicalTeam: 1 }, 
       nextStory: fansStory3 
     },
     { 
       text: "Sportif konulara odaklanıp medya yorumlarını kısıtla", 
-      effects: { Fans: -20, Sponsors: -10, TechnicalTeam: 15 }, 
+      effects: { Fans: -1, Sponsors: -1, TechnicalTeam: 1 }, 
       nextStory: fansStory3 
     },
   ],
@@ -989,22 +989,22 @@ const fansRoot: Story = {
   options: [
     { 
       text: "Bayramyeri'nde taraftar forumu düzenle", 
-      effects: { Fans: 20, Finance: -10, TechnicalTeam: 5 }, 
+      effects: { Fans: 1, Finance: -1, TechnicalTeam: 1 }, 
       nextStory: fansStory2 
     },
     { 
       text: "Tüm tribünlerde %30 indirimli bilet kampanyası başlat", 
-      effects: { Fans: 25, Finance: -15, Sponsors: 5 }, 
+      effects: { Fans: 1, Finance: -1, Sponsors: 1 }, 
       nextStory: fansStory2 
     },
     { 
       text: "Futbolcuları şehir merkezinde imza gününe gönder", 
-      effects: { Fans: 30, TechnicalTeam: -10, Sponsors: 15 }, 
+      effects: { Fans: 1, TechnicalTeam: -1, Sponsors: 1 }, 
       nextStory: fansStory2 
     },
     { 
       text: "#BenimHorozum sosyal medya kampanyası başlat", 
-      effects: { Fans: 15, Sponsors: 20, Finance: -5 }, 
+      effects: { Fans: 1, Sponsors: 1, Finance: -1 }, 
       nextStory: fansStory2 
     },
   ],

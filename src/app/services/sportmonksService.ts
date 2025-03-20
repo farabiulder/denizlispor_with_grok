@@ -131,20 +131,20 @@ export const fetchRecentMatches = async (): Promise<{ matches: MatchResult[], so
  */
 const getFallbackMatches = (): MatchResult[] => {
   return [
-  {
+    {
       homeTeam: "Denizlispor",
       awayTeam: "Kömürspor",
       homeScore: 2,
       awayScore: 2,
-      date: "2025-02-02",
-      isDenizlisporHome: false
+      date: "2024-03-10",
+      isDenizlisporHome: true
     },
     {
       homeTeam: "Denizlispor",
       awayTeam: "TM Kırıkkalespor",
       homeScore: 4,
       awayScore: 1,
-      date: "2025-03-9",
+      date: "2024-03-03",
       isDenizlisporHome: true
     },
     {
@@ -152,7 +152,7 @@ const getFallbackMatches = (): MatchResult[] => {
       awayTeam: "Denizlispor",
       homeScore: 1,
       awayScore: 1,
-      date: "2025-03-02",
+      date: "2024-02-25",
       isDenizlisporHome: false
     },
     {
@@ -160,18 +160,17 @@ const getFallbackMatches = (): MatchResult[] => {
       awayTeam: "Tepecikspor",
       homeScore: 1,
       awayScore: 1,
-      date: "2025-02-16",
+      date: "2024-02-18",
       isDenizlisporHome: true
     },
     {
-      homeTeam: "Denizlispor",
-      awayTeam: "Talasgücü Belediyespor",
-      homeScore: 2,
-      awayScore: 1,
-      date: "2025-02-09",
+      homeTeam: "Talasgücü Belediyespor",
+      awayTeam: "Denizlispor",
+      homeScore: 1,
+      awayScore: 2,
+      date: "2024-02-11",
       isDenizlisporHome: false
     }
-    
   ];
 };
 
@@ -375,75 +374,61 @@ export const generatePredictionFromProgressBars = ({
   avgPerformance: number;
   avgCategoryScore: number;
 }): PredictionData => {
-  // Weight factors for different components
-  const PERFORMANCE_WEIGHT = 0.4;
-  const CATEGORY_SCORE_WEIGHT = 0.3;
-  const API_PREDICTION_WEIGHT = 0.3;
+  // Calculate the weighted importance of each category
+  const categoryWeights = {
+    'Finansal Yönetim': 0.3,    // Financial stability is crucial
+    'Teknik Ekip': 0.3,         // Technical team has major impact
+    'Sponsorlar': 0.2,          // Sponsors provide resources
+    'Taraftar İlişkileri': 0.2  // Fan support affects morale
+  };
 
-  // Calculate team strength based on weighted components
-  const performanceStrength = avgPerformance;
-  const categoryStrength = avgCategoryScore * 20; // Convert 0-5 scale to 0-100
-  const apiStrength = apiPrediction.predictedScore.denizlisporGoals * 25; // Convert goals to 0-100 scale
+  // Calculate weighted average score (0-10 scale)
+  let weightedScore = 0;
+  let totalWeight = 0;
 
-  // Calculate final strength score
-  const adjustedStrength = 
-    (performanceStrength * PERFORMANCE_WEIGHT) +
-    (categoryStrength * CATEGORY_SCORE_WEIGHT) +
-    (apiStrength * API_PREDICTION_WEIGHT);
-
-  console.log('Strength calculations:', {
-    performanceStrength,
-    categoryStrength,
-    apiStrength,
-    adjustedStrength
+  Object.entries(categoryScores).forEach(([category, score]) => {
+    const weight = categoryWeights[category as keyof typeof categoryWeights] || 0.25;
+    weightedScore += score * weight;
+    totalWeight += weight;
   });
 
-  // Determine goals based on adjusted strength
+  // Normalize the score if we have any categories completed
+  const finalScore = totalWeight > 0 ? weightedScore / totalWeight : 0;
+
+  console.log('Category score calculations:', {
+    categoryScores,
+    weightedScore,
+    finalScore
+  });
+
+  // Determine match outcome based on final score
   let denizlisporGoals: number;
   let opponentGoals: number;
-  const goalRandom = Math.random();
-  const oppGoalRandom = Math.random();
 
-  // Very weak team (0-30)
-  if (adjustedStrength < 30) {
-    if (goalRandom < 0.6) denizlisporGoals = 0;
-    else if (goalRandom < 0.9) denizlisporGoals = 1;
-    else denizlisporGoals = 2;
-
-    if (oppGoalRandom < 0.3) opponentGoals = 1;
-    else if (oppGoalRandom < 0.7) opponentGoals = 2;
-    else opponentGoals = 3;
+  // Very poor performance (0-3): High chance of losing
+  if (finalScore <= 3) {
+    denizlisporGoals = 0;
+    opponentGoals = 3;
   }
-  // Weak team (30-50)
-  else if (adjustedStrength < 50) {
-    if (goalRandom < 0.4) denizlisporGoals = 0;
-    else if (goalRandom < 0.8) denizlisporGoals = 1;
-    else denizlisporGoals = 2;
-
-    if (oppGoalRandom < 0.3) opponentGoals = 0;
-    else if (oppGoalRandom < 0.7) opponentGoals = 1;
-    else opponentGoals = 2;
+  // Below average (3-5): Likely to lose or draw
+  else if (finalScore <= 5) {
+    denizlisporGoals = 1;
+    opponentGoals = 2;
   }
-  // Average team (50-70)
-  else if (adjustedStrength < 70) {
-    if (goalRandom < 0.3) denizlisporGoals = 0;
-    else if (goalRandom < 0.6) denizlisporGoals = 1;
-    else if (goalRandom < 0.9) denizlisporGoals = 2;
-    else denizlisporGoals = 3;
-
-    if (oppGoalRandom < 0.4) opponentGoals = 0;
-    else if (oppGoalRandom < 0.8) opponentGoals = 1;
-    else opponentGoals = 2;
+  // Average performance (5-7): Competitive match
+  else if (finalScore <= 7) {
+    denizlisporGoals = 2;
+    opponentGoals = 2;
   }
-  // Strong team (70-90)
+  // Good performance (7-8.5): Likely to win
+  else if (finalScore <= 8.5) {
+    denizlisporGoals = 2;
+    opponentGoals = 1;
+  }
+  // Excellent performance (8.5-10): Strong win probability
   else {
-    if (goalRandom < 0.2) denizlisporGoals = 1;
-    else if (goalRandom < 0.6) denizlisporGoals = 2;
-    else denizlisporGoals = 3;
-
-    if (oppGoalRandom < 0.6) opponentGoals = 0;
-    else if (oppGoalRandom < 0.9) opponentGoals = 1;
-    else opponentGoals = 2;
+    denizlisporGoals = 3;
+    opponentGoals = 0;
   }
 
   return {
@@ -454,6 +439,6 @@ export const generatePredictionFromProgressBars = ({
     recentMatches: apiPrediction.recentMatches,
     form: apiPrediction.form,
     nextOpponent: apiPrediction.nextOpponent,
-    dataSource: "Kulüp Performansı ve Geçmiş Maçlar"
+    dataSource: "Kategori Puanları Analizi"
   };
 }; 
