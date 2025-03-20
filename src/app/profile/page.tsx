@@ -8,6 +8,21 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { supabase } from "../lib/supabaseClient";
 
+interface WeeklyScore {
+  id?: number;
+  user_id: string;
+  points_earned: number;
+  prediction: {
+    denizlisporGoals: number;
+    opponentGoals: number;
+  };
+  actual_score: {
+    denizlisporGoals: number;
+    opponentGoals: number;
+  };
+  created_at: string;
+}
+
 export default function Profile() {
   const { userProfile, user, signOut, loading } = useAuth();
   const router = useRouter();
@@ -20,6 +35,11 @@ export default function Profile() {
     type: "success" | "error";
   } | null>(null);
   const [isUpdating, setIsUpdating] = useState(false);
+  const [totalPoints, setTotalPoints] = useState<number>(0);
+  const [latestPrediction, setLatestPrediction] = useState<WeeklyScore | null>(
+    null
+  );
+  const [loadingPredictions, setLoadingPredictions] = useState(true);
 
   useEffect(() => {
     if (!loading && !user) {
@@ -27,8 +47,64 @@ export default function Profile() {
     }
     if (user) {
       setEmail(user.email || "");
+      fetchUserData();
     }
   }, [user, loading, router]);
+
+  const fetchUserData = async () => {
+    if (!user) return;
+
+    try {
+      // Fetch total points
+      const { data: pointsData, error: pointsError } = await supabase
+        .from("user_points")
+        .select("total_points")
+        .eq("user_id", user.id)
+        .single();
+
+      if (pointsError) throw pointsError;
+      setTotalPoints(pointsData?.total_points || 0);
+
+      // Fetch latest game state with completed categories
+      const { data: gameStateData, error: gameStateError } = await supabase
+        .from("game_states")
+        .select("*")
+        .eq("user_id", user.id)
+        .order("updated_at", { ascending: false })
+        .single();
+
+      if (gameStateError) throw gameStateError;
+
+      // Fetch real score from real_dp_score table
+      const { data: realScoreData, error: realScoreError } = await supabase
+        .from("real_dp_score")
+        .select("dp_score, rival")
+        .order("created_at", { ascending: false })
+        .limit(1)
+        .single();
+
+      if (realScoreError) throw realScoreError;
+
+      if (gameStateData?.match_prediction) {
+        const prediction = {
+          id: gameStateData.id,
+          user_id: user.id,
+          points_earned: totalPoints,
+          prediction: gameStateData.match_prediction,
+          actual_score: {
+            denizlisporGoals: Number(realScoreData.dp_score),
+            opponentGoals: Number(realScoreData.rival),
+          },
+          created_at: gameStateData.updated_at,
+        };
+        setLatestPrediction(prediction);
+      }
+    } catch (error) {
+      console.error("Error fetching user data:", error);
+    } finally {
+      setLoadingPredictions(false);
+    }
+  };
 
   if (loading) {
     return (
@@ -112,23 +188,59 @@ export default function Profile() {
 
         <div className={styles.statsContainer}>
           <div className={styles.statCard}>
-            <span className={styles.statValue}>0</span>
+            <span className={styles.statValue}>{totalPoints}</span>
             <span className={styles.statLabel}>Toplam Puan</span>
-          </div>
-          <div className={styles.statCard}>
-            <span className={styles.statValue}>0</span>
-            <span className={styles.statLabel}>Tahmin Sayısı</span>
-          </div>
-          <div className={styles.statCard}>
-            <span className={styles.statValue}>0</span>
-            <span className={styles.statLabel}>Doğru Tahmin</span>
           </div>
         </div>
 
         <div className={styles.section}>
-          <h2 className={styles.sectionTitle}>Son Tahminler</h2>
+          <h2 className={styles.sectionTitle}>Maç Sonucu</h2>
           <div className={styles.predictionsList}>
-            <p className={styles.emptyText}>Henüz tahmin yapılmadı</p>
+            {loadingPredictions ? (
+              <p className={styles.loadingText}>Yükleniyor...</p>
+            ) : latestPrediction ? (
+              <div className={styles.predictionItem}>
+                <h3 className={styles.predictionTitle}>Tahmin Edilen Skor</h3>
+                <div className={styles.scoreDisplay}>
+                  <span className={styles.teamName}>Denizlispor</span>
+                  <span className={styles.score}>
+                    {latestPrediction.prediction.denizlisporGoals} -{" "}
+                    {latestPrediction.prediction.opponentGoals}
+                  </span>
+                  <span className={styles.teamName}>Rakip</span>
+                </div>
+
+                <h3 className={styles.predictionTitle}>Gerçek Skor</h3>
+                <div className={styles.scoreDisplay}>
+                  <span className={styles.teamName}>Denizlispor</span>
+                  <span className={styles.score}>
+                    {latestPrediction.actual_score.denizlisporGoals} -{" "}
+                    {latestPrediction.actual_score.opponentGoals}
+                  </span>
+                  <span className={styles.teamName}>Rakip</span>
+                </div>
+
+                <div
+                  className={`${styles.predictionResult} ${
+                    latestPrediction.prediction.denizlisporGoals ===
+                      latestPrediction.actual_score.denizlisporGoals &&
+                    latestPrediction.prediction.opponentGoals ===
+                      latestPrediction.actual_score.opponentGoals
+                      ? styles.correctPrediction
+                      : styles.incorrectPrediction
+                  }`}
+                >
+                  {latestPrediction.prediction.denizlisporGoals ===
+                    latestPrediction.actual_score.denizlisporGoals &&
+                  latestPrediction.prediction.opponentGoals ===
+                    latestPrediction.actual_score.opponentGoals
+                    ? "Doğru Tahmin"
+                    : "Yanlış Tahmin"}
+                </div>
+              </div>
+            ) : (
+              <p className={styles.emptyText}>Henüz tahmin yapılmadı</p>
+            )}
           </div>
         </div>
 
