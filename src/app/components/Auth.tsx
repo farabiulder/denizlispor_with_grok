@@ -26,18 +26,16 @@ export default function Auth() {
       if (isLogin) {
         await signIn(email, password);
       } else {
-        const { data: authData, error: signUpError } = await signUp(
-          email,
-          password
-        );
-        if (signUpError) throw signUpError;
+        const { data, error } = await signUp(email, password);
 
-        if (authData.user) {
+        if (error) throw error;
+
+        if (data?.user) {
           // Update the users table with name and surname
           const { error: updateError } = await supabase
             .from("users")
             .update({ first_name: firstName, last_name: lastName })
-            .eq("id", authData.user.id);
+            .eq("id", data.user.id);
 
           if (updateError) throw updateError;
         }
