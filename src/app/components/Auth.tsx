@@ -14,6 +14,9 @@ export default function Auth() {
   const [isLogin, setIsLogin] = useState(true);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [message, setMessage] = useState<{ text: string; type: string } | null>(
+    null
+  );
   const { signIn, signUp } = useAuth();
   const router = useRouter();
 
@@ -25,25 +28,61 @@ export default function Auth() {
     try {
       if (isLogin) {
         await signIn(email, password);
+        router.push("/");
       } else {
-        const { data, error } = await signUp(email, password);
+        // Validate input fields
+        if (!firstName.trim() || !lastName.trim()) {
+          throw new Error("Ad ve soyad alanları boş bırakılamaz");
+        }
 
+        const { data, error } = await signUp(
+          email,
+          password,
+          firstName,
+          lastName
+        );
         if (error) throw error;
 
         if (data?.user) {
-          // Update the users table with name and surname
-          const { error: updateError } = await supabase
-            .from("users")
-            .update({ first_name: firstName, last_name: lastName })
-            .eq("id", data.user.id);
+          // Registration successful, update profile
+          try {
+            const { error: updateError } = await supabase
+              .from("users")
+              .update({ first_name: firstName, last_name: lastName })
+              .eq("id", data.user.id);
 
-          if (updateError) throw updateError;
+            if (updateError) {
+              console.error("Error updating profile:", updateError);
+            }
+          } catch (updateErr) {
+            console.error("Profile update error:", updateErr);
+          }
+
+          // Show success message and redirect to login
+          setError(null);
+          setMessage({
+            text: "Kayıt başarılı! Giriş yapabilirsiniz.",
+            type: "success",
+          });
+          setIsLogin(true);
         }
       }
     } catch (err) {
-      setError(
-        err instanceof Error ? err.message : "An unexpected error occurred"
-      );
+      let errorMessage = "Beklenmeyen bir hata oluştu";
+
+      if (err instanceof Error) {
+        if (err.message.includes("Email not confirmed")) {
+          errorMessage = "Email adresinizi onaylamanız gerekmektedir";
+        } else if (err.message.includes("Invalid login credentials")) {
+          errorMessage = "Geçersiz email veya şifre";
+        } else if (err.message.includes("User already registered")) {
+          errorMessage = "Bu email adresi zaten kayıtlı";
+        } else {
+          errorMessage = err.message;
+        }
+      }
+
+      setError(errorMessage);
     } finally {
       setLoading(false);
     }

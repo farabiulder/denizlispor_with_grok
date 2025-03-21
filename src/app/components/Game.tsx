@@ -65,10 +65,18 @@ interface WeeklyScore {
 }
 
 const initialProgressBars: ProgressBars = {
-  Finance: 50,
-  TechnicalTeam: 50,
-  Sponsors: 50,
-  Fans: 50,
+  Finance: 10,
+  TechnicalTeam: 10,
+  Sponsors: 10,
+  Fans: 10,
+};
+
+// Add a mapping for Turkish labels
+const progressBarLabels: Record<keyof ProgressBars, string> = {
+  Finance: "Finans",
+  TechnicalTeam: "Teknik Ekip",
+  Sponsors: "Sponsorlar",
+  Fans: "Taraftarlar",
 };
 
 export default function Game() {
@@ -77,6 +85,7 @@ export default function Game() {
   const [currentCategory, setCurrentCategory] = useState<string | null>(null);
   const [currentStory, setCurrentStory] = useState<Story | null>(null);
   const [storyCount, setStoryCount] = useState<number>(0);
+  const [storyStarted, setStoryStarted] = useState<boolean>(false);
   const [progressBars, setProgressBars] =
     useState<ProgressBars>(initialProgressBars);
   const [matchPrediction, setMatchPrediction] = useState<Score | null>(null);
@@ -222,7 +231,12 @@ export default function Game() {
       }
 
       if (data) {
-        setProgressBars(data.progress_bars);
+        // If points are 0, set progress bars to initial values
+        if (data.points === 0) {
+          setProgressBars(initialProgressBars);
+        } else {
+          setProgressBars(data.progress_bars);
+        }
         setCompletedCategories(data.completed_categories);
         setPoints(data.points);
         setEstimatedScores(data.estimated_scores || {});
@@ -376,6 +390,7 @@ export default function Game() {
       setCurrentCategory(category);
       setCurrentStory(getStory(category));
       setStoryCount(1);
+      setStoryStarted(false);
     }
   };
 
@@ -481,6 +496,7 @@ export default function Game() {
   };
 
   const chooseOption = (option: Option) => {
+    setStoryStarted(true);
     // Update progress bars based on option effects
     setProgressBars((prevBars) => {
       const newBars = { ...prevBars };
@@ -512,6 +528,13 @@ export default function Game() {
       setCurrentCategory(null);
       setCurrentStory(null);
     }
+  };
+
+  const goBackToCategories = () => {
+    setCurrentCategory(null);
+    setCurrentStory(null);
+    setStoryCount(0);
+    setStoryStarted(false);
   };
 
   const checkScoreMatch = async (category: string, estimatedScore: number) => {
@@ -629,10 +652,10 @@ export default function Game() {
       const initialState = {
         user_id: user.id,
         progress_bars: {
-          Finance: 50,
-          TechnicalTeam: 50,
-          Sponsors: 50,
-          Fans: 50,
+          Finance: 10,
+          TechnicalTeam: 10,
+          Sponsors: 10,
+          Fans: 10,
         },
         completed_categories: [],
         points: 0,
@@ -959,15 +982,17 @@ export default function Game() {
           >
             <h2>Tahmin Edilen Skor</h2>
             <div className={styles.scoreDisplay}>
-              <span className={styles.teamName}>Denizlispor</span>
-              <span className={styles.scoreValue}>
-                {matchPrediction.denizlisporGoals}
-              </span>
-              <span className={styles.scoreSeparator}>-</span>
-              <span className={styles.scoreValue}>
-                {matchPrediction.opponentGoals}
-              </span>
-              <span className={styles.teamName}>Rakip</span>
+              <div className={styles.scoreRow}>
+                <span className={styles.teamName}>Denizlispor</span>
+                <span className={styles.score}>
+                  {matchPrediction.denizlisporGoals}
+                </span>
+                <span className={styles.scoreSeparator}>-</span>
+                <span className={styles.score}>
+                  {matchPrediction.opponentGoals}
+                </span>
+                <span className={styles.teamName}>Rakip</span>
+              </div>
             </div>
           </motion.div>
 
@@ -979,15 +1004,17 @@ export default function Game() {
           >
             <h2>Gerçek Skor</h2>
             <div className={styles.scoreDisplay}>
-              <span className={styles.teamName}>Denizlispor</span>
-              <span className={styles.scoreValue}>
-                {actualScore.denizlisporGoals}
-              </span>
-              <span className={styles.scoreSeparator}>-</span>
-              <span className={styles.scoreValue}>
-                {actualScore.opponentGoals}
-              </span>
-              <span className={styles.teamName}>Rakip</span>
+              <div className={styles.scoreRow}>
+                <span className={styles.teamName}>Denizlispor</span>
+                <span className={styles.score}>
+                  {actualScore.denizlisporGoals}
+                </span>
+                <span className={styles.scoreSeparator}>-</span>
+                <span className={styles.score}>
+                  {actualScore.opponentGoals}
+                </span>
+                <span className={styles.teamName}>Rakip</span>
+              </div>
             </div>
           </motion.div>
         </div>
@@ -1186,7 +1213,7 @@ export default function Game() {
                 transition={{ delay: 0.5 + index * 0.1, duration: 0.3 }}
               >
                 <div className={styles.progressLabel}>
-                  <span>{key}</span>
+                  <span>{progressBarLabels[key as keyof ProgressBars]}</span>
                   <span>{value}%</span>
                 </div>
                 <div className={styles.progressBarContainer}>
@@ -1205,6 +1232,19 @@ export default function Game() {
         </motion.div>
 
         <div className={styles.storyHeader}>
+          {!storyStarted && (
+            <motion.button
+              className={styles.backButton}
+              onClick={goBackToCategories}
+              initial={{ opacity: 0, x: -20 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ delay: 0.2, duration: 0.5 }}
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+            >
+              ← Geri
+            </motion.button>
+          )}
           <h1 className={styles.categoryTitle}>{currentCategory}</h1>
 
           {/* Add admin controls if on admin page */}
@@ -1327,7 +1367,7 @@ export default function Game() {
                 transition={{ delay: 0.5 + index * 0.1, duration: 0.3 }}
               >
                 <div className={styles.progressLabel}>
-                  <span>{key}</span>
+                  <span>{progressBarLabels[key as keyof ProgressBars]}</span>
                   <span>{value}%</span>
                 </div>
                 <div className={styles.progressBarContainer}>

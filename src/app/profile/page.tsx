@@ -170,7 +170,7 @@ export default function Profile() {
 
   const handleLogout = async () => {
     await signOut();
-    router.push("/login");
+    router.push("/");
   };
 
   return (
@@ -178,11 +178,11 @@ export default function Profile() {
       <div className={styles.mainContent}>
         <div className={styles.profileHeader}>
           <div className={styles.avatar}>
-            {userProfile?.name?.[0]?.toUpperCase() || "👤"}
+            {userProfile?.first_name?.[0]?.toUpperCase() || "👤"}
           </div>
           <h1 className={styles.name}>
-            {userProfile?.name || "Kullanıcı"}
-            {userProfile?.surname && ` ${userProfile.surname}`}
+            {userProfile?.first_name || "Kullanıcı"}
+            {userProfile?.last_name && ` ${userProfile.last_name}`}
           </h1>
         </div>
 

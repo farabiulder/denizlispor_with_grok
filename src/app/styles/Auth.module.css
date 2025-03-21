@@ -148,3 +148,47 @@
   color: #1e5f74;
 
 }
+
+/* Mobile styles */
+@media (max-width: 480px) {
+  .authContainer {
+    padding: 10px;
+  }
+
+  .authCard {
+    padding: 20px;
+    margin: 10px;
+    max-width: 100%;
+  }
+
+  .authTitle {
+    font-size: 24px;
+  }
+
+  .input {
+    padding: 10px 12px;
+    font-size: 14px;
+  }
+
+  .authButton {
+    padding: 12px;
+    font-size: 14px;
+  }
+
+  .formGroup {
+    margin-bottom: 15px;
+  }
+}
+
+/* Tablet styles */
+@media (min-width: 481px) and (max-width: 768px) {
+  .authContainer {
+    padding: 15px;
+  }
+
+  .authCard {
+    padding: 30px;
+    margin: 15px;
+    max-width: 90%;
+  }
+}

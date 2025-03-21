@@ -1,19 +1,12 @@
-import type { Metadata } from "next";
+"use client";
 import { Inter } from "next/font/google";
 import "./globals.css";
 import { AuthProvider } from "./context/AuthProvider";
-import Header from "./components/Header";
 
 const inter = Inter({
   subsets: ["latin"],
   variable: "--font-inter",
 });
-
-export const metadata: Metadata = {
-  title: "Denizlispor Menajerlik",
-  description:
-    "Stratejik kararlar alarak kulübü finansal zorluklar karşısında yönetin.",
-};
 
 export default function RootLayout({
   children,
@@ -22,6 +15,13 @@ export default function RootLayout({
 }) {
   return (
     <html lang="tr">
+      <head>
+        <title>Denizlispor Menajerlik</title>
+        <meta
+          name="description"
+          content="Stratejik kararlar alarak kulübü finansal zorluklar karşısında yönetin."
+        />
+      </head>
       <body className={inter.className}>
         <AuthProvider>{children}</AuthProvider>
       </body>

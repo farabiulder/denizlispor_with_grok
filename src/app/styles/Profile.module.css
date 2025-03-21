@@ -2,11 +2,15 @@
     min-height: 100vh;
     background-color: #f5f7fa;
     position: relative;
+    width: 100%;
+    overflow-x: hidden;
 }
 
 .mainContent {
     padding: 20px;
     padding-bottom: 70px;
+    max-width: 1200px;
+    margin: 0 auto;
 }
 
 .profileHeader {
@@ -352,4 +356,96 @@
     background-color: white;
     border-radius: 4px;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+/* Mobile styles */
+@media (max-width: 480px) {
+    .mainContent {
+        padding: 15px;
+        padding-bottom: 70px;
+    }
+
+    .avatar {
+        width: 80px;
+        height: 80px;
+        font-size: 32px;
+    }
+
+    .name {
+        font-size: 20px;
+    }
+
+    .statsContainer {
+        padding: 0.5rem;
+    }
+
+    .statCard {
+        padding: 0.5rem;
+    }
+
+    .statValue {
+        font-size: 1.5rem;
+    }
+
+    .section {
+        padding: 15px;
+        margin-bottom: 15px;
+    }
+
+    .predictionItem {
+        padding: 1rem;
+    }
+
+    .scoreDisplay {
+        flex-direction: column;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .teamName {
+        font-size: 14px;
+    }
+
+    .score {
+        font-size: 20px;
+    }
+
+    .settingsForm {
+        gap: 0.75rem;
+    }
+
+    .input {
+        padding: 0.5rem;
+        font-size: 14px;
+    }
+
+    .updateButton {
+        padding: 0.5rem;
+        font-size: 14px;
+    }
+}
+
+/* Tablet styles */
+@media (min-width: 481px) and (max-width: 768px) {
+    .mainContent {
+        padding: 20px;
+        padding-bottom: 70px;
+    }
+
+    .statsContainer {
+        flex-wrap: wrap;
+    }
+
+    .statCard {
+        flex: 1 1 calc(50% - 1rem);
+        min-width: 150px;
+    }
+
+    .scoreDisplay {
+        gap: 15px;
+    }
+
+    .predictionItem {
+        padding: 1.25rem;
+    }
 } 

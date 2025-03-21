@@ -3,6 +3,7 @@ import { useRouter } from "next/navigation";
 import { use } from "react";
 import styles from "../../styles/Newspaper.module.css";
 import { FaArrowLeft } from "react-icons/fa";
+import BottomNav from "@/app/components/BottomNav";
 interface NewsItem {
   id: number;
   title: string;
@@ -62,6 +63,7 @@ export default function NewsDetail({ params }: { params: { slug: string } }) {
           <p className={styles.newsContent}>{newsItem.content}</p>
         </article>
       </div>
+      <BottomNav />
     </div>
   );
 }
