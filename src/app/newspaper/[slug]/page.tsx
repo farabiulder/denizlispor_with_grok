@@ -36,17 +36,11 @@ const newsData: NewsItem[] = [
   },
 ];
 
-export default function NewsDetail({
-  params,
-}: {
-  params: Promise<{ slug: string }>;
-}) {
+export default function NewsDetail({ params }: { params: { slug: string } }) {
   const router = useRouter();
-  const resolvedParams = use(params);
   const newsItem = newsData.find(
     (item) =>
-      item.title.toLowerCase().replace(/[^a-z0-9]+/g, "-") ===
-      resolvedParams.slug
+      item.title.toLowerCase().replace(/[^a-z0-9]+/g, "-") === params.slug
   );
 
   if (!newsItem) {
