@@ -6,7 +6,8 @@
   NEXT_PUBLIC_SUPABASE_URL = "https://mqlnaawqggsfggryzyis.supabase.co"
   NEXT_PUBLIC_SUPABASE_API_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1xbG5hYXdxZ2dzZmdncnl6eWlzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDE5MDE0OTksImV4cCI6MjA1NzQ3NzQ5OX0.owgohHdFR4bA5IGNsUrJXGN1p0WaEB0GtT5h5Z5d6RE"
   NEXT_PUBLIC_SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1xbG5hYXdxZ2dzZmdncnl6eWlzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDE5MDE0OTksImV4cCI6MjA1NzQ3NzQ5OX0.owgohHdFR4bA5IGNsUrJXGN1p0WaEB0GtT5h5Z5d6RE"
-
+  SUPABASE_SERVICE_ROLE_KEY="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1xbG5h"YXdxZ2dzZmdncnl6eWlzIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc0MTkwMTQ5OSwiZXhwIjoyMDU3NDc3NDk5fQ.QTsmlljeBEpNP8gvXMFofdfkUkrtl9pB-tn5nQW5HBQ"
+  
 # For Next.js 13+ with app directory
 [functions]
   included_files = [".next/server/**", ".next/standalone/**"]
