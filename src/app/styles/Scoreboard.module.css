@@ -93,4 +93,34 @@
 
 @keyframes spin {
     to { transform: rotate(360deg); }
+}
+
+.errorContainer {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 2rem;
+    text-align: center;
+    gap: 1rem;
+}
+
+.errorContainer p {
+    color: #ff4444;
+    margin-bottom: 1rem;
+}
+
+.retryButton {
+    background-color: #007bff;
+    color: white;
+    border: none;
+    padding: 0.5rem 1rem;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 1rem;
+    transition: background-color 0.2s;
+}
+
+.retryButton:hover {
+    background-color: #0056b3;
 } 

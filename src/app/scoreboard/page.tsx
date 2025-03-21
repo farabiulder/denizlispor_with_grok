@@ -14,9 +14,35 @@ interface UserScore {
 export default function Scoreboard() {
   const [scores, setScores] = useState<UserScore[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    fetchUserScores();
+    let mounted = true;
+
+    const fetchData = async () => {
+      try {
+        setLoading(true);
+        setError(null);
+        await fetchUserScores();
+      } catch (err) {
+        if (mounted) {
+          setError(
+            "Skorlar yüklenirken bir hata oluştu. Lütfen sayfayı yenileyin."
+          );
+          console.error("Error fetching user scores:", err);
+        }
+      } finally {
+        if (mounted) {
+          setLoading(false);
+        }
+      }
+    };
+
+    fetchData();
+
+    return () => {
+      mounted = false;
+    };
   }, []);
 
   const formatName = (name: string): string => {
@@ -76,8 +102,6 @@ export default function Scoreboard() {
       setScores(combinedScores);
     } catch (error) {
       console.error("Error fetching user scores:", error);
-    } finally {
-      setLoading(false);
     }
   };
 
@@ -87,6 +111,23 @@ export default function Scoreboard() {
         <div className={styles.loadingContainer}>
           <div className={styles.spinner} />
           <p>Yükleniyor...</p>
+        </div>
+        <BottomNav />
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className={styles.container}>
+        <div className={styles.errorContainer}>
+          <p>{error}</p>
+          <button
+            onClick={() => window.location.reload()}
+            className={styles.retryButton}
+          >
+            Yeniden Dene
+          </button>
         </div>
         <BottomNav />
       </div>
