@@ -21,8 +21,8 @@ interface ProgressBars {
 }
 
 interface Score {
-  denizlisporGoals: number;
-  opponentGoals: number;
+  denizlisporGoals: number | null;
+  opponentGoals: number | null;
 }
 
 interface Story {
@@ -336,6 +336,18 @@ export default function Game() {
     }
   }, [completedCategories]);
 
+  // Add this new useEffect to handle match prediction visibility
+  useEffect(() => {
+    const checkAndCalculatePrediction = async () => {
+      if (completedCategories.length === 4 && !matchPrediction) {
+        console.log("All categories completed, calculating prediction...");
+        await calculateMatchPrediction();
+      }
+    };
+
+    checkAndCalculatePrediction();
+  }, [completedCategories.length, matchPrediction]);
+
   // Replace your existing useEffect for real-time subscription with this
   useEffect(() => {
     if (completedCategories.length === 4) {
@@ -453,55 +465,80 @@ export default function Game() {
     return Math.round(finalScore * 10) / 10;
   };
 
-  // Then modify the completeCategory function to use this new calculation
+  // Modify the completeCategory function
   const completeCategory = async (category: string) => {
     if (!user) return;
 
-    // Mark the category as completed
-    const updatedCompletedCategories = [...completedCategories, category];
-    setCompletedCategories(updatedCompletedCategories);
-
-    // Calculate a realistic score based on progress bars
-    const score = calculateRealisticScore(category, progressBars);
-
-    // Update estimated scores
-    const updatedEstimatedScores = { ...estimatedScores, [category]: score };
-    setEstimatedScores(updatedEstimatedScores);
-
-    // Update points
-    const newPoints = points + Math.round(score * 10);
-    setPoints(newPoints);
-
-    // Update last played story week
-    setLastPlayedStoryWeek(currentStoryWeek);
-
-    // Save the game state
-    const gameState = {
-      user_id: user.id,
-      progress_bars: progressBars,
-      completed_categories: updatedCompletedCategories,
-      points: newPoints,
-      estimated_scores: updatedEstimatedScores,
-      updated_at: new Date().toISOString(),
-      last_played_story_week: currentStoryWeek,
-    };
-
     try {
+      console.log("Starting category completion...");
+
+      // Mark the category as completed
+      const updatedCompletedCategories = [...completedCategories, category];
+      setCompletedCategories(updatedCompletedCategories);
+
+      // Calculate a realistic score based on progress bars
+      const score = calculateRealisticScore(category, progressBars);
+
+      // Update estimated scores
+      const updatedEstimatedScores = { ...estimatedScores, [category]: score };
+      setEstimatedScores(updatedEstimatedScores);
+
+      // Update points
+      const newPoints = points + Math.round(score * 10);
+      setPoints(newPoints);
+
+      // Update last played story week
+      setLastPlayedStoryWeek(currentStoryWeek);
+
+      // Save the game state
+      const gameState = {
+        user_id: user.id,
+        progress_bars: progressBars,
+        completed_categories: updatedCompletedCategories,
+        points: newPoints,
+        estimated_scores: updatedEstimatedScores,
+        updated_at: new Date().toISOString(),
+        last_played_story_week: currentStoryWeek,
+      };
+
       await supabase.from("game_states").upsert(gameState, {
         onConflict: "user_id",
       });
+
+      // Reset current category and story
+      setCurrentCategory(null);
+      setCurrentStory(null);
+
+      // If all categories are completed, calculate match prediction immediately
+      if (updatedCompletedCategories.length === 4) {
+        console.log(
+          "All categories completed, calculating prediction immediately..."
+        );
+        const prediction = await calculateMatchPrediction();
+        console.log("Prediction calculated:", prediction);
+
+        if (prediction) {
+          setMatchPrediction(prediction);
+          // Fetch actual score right after setting prediction
+          const actualScoreData = await fetchActualScore();
+          if (actualScoreData) {
+            console.log("Setting actual score:", actualScoreData);
+            setActualScore(actualScoreData);
+          }
+        }
+      }
     } catch (error) {
-      console.error("Error saving game state:", error);
+      console.error("Error in completeCategory:", error);
     }
   };
 
+  // Modify the chooseOption function
   const chooseOption = (option: Option) => {
     setStoryStarted(true);
     // Update progress bars based on option effects
     setProgressBars((prevBars) => {
       const newBars = { ...prevBars };
       Object.entries(option.effects).forEach(([key, value]) => {
-        // Use type assertion to handle dynamic key
         const barKey = key as keyof ProgressBars;
         newBars[barKey] = Math.min(Math.max(newBars[barKey] + value, 0), 100);
       });
@@ -514,7 +551,6 @@ export default function Game() {
 
       // Ensure the next story has options
       if (!option.nextStory.options || option.nextStory.options.length === 0) {
-        // Generate fallback options for the next story
         const fallbackOptions = generateFallbackOptions(currentCategory || "");
         option.nextStory.options = fallbackOptions;
       }
@@ -523,10 +559,11 @@ export default function Game() {
     } else {
       // Category completed
       if (currentCategory) {
-        completeCategory(currentCategory);
+        completeCategory(currentCategory).then(() => {
+          setCurrentCategory(null);
+          setCurrentStory(null);
+        });
       }
-      setCurrentCategory(null);
-      setCurrentStory(null);
     }
   };
 
@@ -568,7 +605,6 @@ export default function Game() {
         "🔍 Attempting to fetch score data from real_dp_score table..."
       );
 
-      // Get the most recent score from the real_dp_score table
       const { data, error } = await supabase
         .from("real_dp_score")
         .select("dp_score, rival, created_at")
@@ -581,31 +617,31 @@ export default function Game() {
       if (!error && data && data.length > 0) {
         console.log("✅ Found existing score record:", data[0]);
 
-        // Parse the scores as numbers to ensure correct type
-        const score = {
-          denizlisporGoals: Number(data[0].dp_score),
-          opponentGoals: Number(data[0].rival),
-        };
-
-        console.log("🏆 Parsed score:", score);
-        return score;
+        // Even if scores are NULL, return a Score object with null values
+        // This will trigger the waiting message in the UI
+        return {
+          denizlisporGoals:
+            data[0].dp_score === null ? null : Number(data[0].dp_score),
+          opponentGoals: data[0].rival === null ? null : Number(data[0].rival),
+        } as Score;
       }
 
-      // If no data found or there was an error, log and use default values
+      // If no data found or there was an error, return a Score object with null values
       console.log(
-        "⚠️ No score data found or access denied. Using default score."
+        "⚠️ No score data found or access denied. Returning null scores."
       );
-      return { denizlisporGoals: 0, opponentGoals: 0 };
+      return { denizlisporGoals: null, opponentGoals: null } as Score;
     } catch (err) {
       console.error("💥 Exception in fetchActualScore:", err);
-      return { denizlisporGoals: 0, opponentGoals: 0 };
+      return { denizlisporGoals: null, opponentGoals: null } as Score;
     }
   };
 
   const calculateMatchPrediction = async () => {
-    if (!user) return;
+    if (!user) return null;
 
     try {
+      console.log("Starting match prediction calculation...");
       setPredictionDetails((prev) => ({ ...prev, isLoading: true }));
 
       // Calculate average performance from progress bars
@@ -628,12 +664,29 @@ export default function Game() {
         avgCategoryScore,
       });
 
-      setMatchPrediction(combinedPrediction.predictedScore);
+      console.log(
+        "Combined prediction calculated:",
+        combinedPrediction.predictedScore
+      );
+
+      // Ensure prediction scores are never null
+      const prediction = {
+        denizlisporGoals:
+          combinedPrediction.predictedScore.denizlisporGoals || 0,
+        opponentGoals: combinedPrediction.predictedScore.opponentGoals || 0,
+      };
+
+      // Set both states immediately
+      setMatchPrediction(prediction);
       setPredictionDetails({
         ...combinedPrediction,
+        predictedScore: prediction,
         isLoading: false,
         error: null,
       });
+
+      // Return the prediction score
+      return prediction;
     } catch (error) {
       console.error("Error calculating match prediction:", error);
       setPredictionDetails((prev) => ({
@@ -641,6 +694,8 @@ export default function Game() {
         isLoading: false,
         error: "Tahmin hesaplanırken bir hata oluştu.",
       }));
+      // Return default prediction in case of error
+      return { denizlisporGoals: 0, opponentGoals: 0 };
     }
   };
 
@@ -648,38 +703,57 @@ export default function Game() {
     if (!user || !isAdminPage) return;
 
     try {
-      // Reset everything to initial state
-      const initialState = {
-        user_id: user.id,
-        progress_bars: {
-          Finance: 10,
-          TechnicalTeam: 10,
-          Sponsors: 10,
-          Fans: 10,
-        },
-        completed_categories: [],
-        points: 0,
-        estimated_scores: {},
-        last_story_completion_date: new Date().toISOString(),
-        updated_at: new Date().toISOString(),
-      };
+      // Only reset if we're on the admin page
+      if (pathname?.includes("/admin")) {
+        // Reset everything to initial state
+        const initialState = {
+          user_id: user.id,
+          progress_bars: initialProgressBars,
+          completed_categories: [],
+          points: 0,
+          estimated_scores: {},
+          last_story_completion_date: new Date().toISOString(),
+          updated_at: new Date().toISOString(),
+          last_played_story_week: 0,
+          last_completion_time: null,
+        };
 
-      const { error } = await supabase
-        .from("game_states")
-        .upsert(initialState, { onConflict: "user_id" });
+        // Reset all local state first
+        setProgressBars(initialProgressBars);
+        setCompletedCategories([]);
+        setCurrentCategory(null);
+        setCurrentStory(null);
+        setStoryCount(0);
+        setPoints(0);
+        setEstimatedScores({});
+        setMatchPrediction(null);
+        setActualScore(null);
+        setLastStoryCompletionDate(new Date());
+        setLastPlayedStoryWeek(0);
+        setLastCompletionTime(null);
 
-      if (error) throw error;
+        // Update only the current user's game state in the database
+        const { error: gameStateError } = await supabase
+          .from("game_states")
+          .update(initialState)
+          .eq("user_id", user.id);
 
-      // Reset all local state
-      setProgressBars(initialState.progress_bars);
-      setCompletedCategories([]);
-      setCurrentCategory(null);
-      setCurrentStory(getStory("Finansal Yönetim")); // Start with first story
-      setStoryCount(1);
-      setPoints(0);
-      setEstimatedScores({});
-      setLastStoryCompletionDate(new Date());
-      window.location.reload();
+        if (gameStateError) throw gameStateError;
+
+        // Also reset current user's points in the points table
+        const { error: pointsError } = await supabase
+          .from("user_points")
+          .update({
+            total_points: 0,
+            updated_at: new Date().toISOString(),
+          })
+          .eq("user_id", user.id);
+
+        if (pointsError) throw pointsError;
+
+        // Reload the game state
+        await loadGameState();
+      }
     } catch (err) {
       console.error("Failed to reset game:", err);
     }
@@ -1003,19 +1077,27 @@ export default function Game() {
             transition={{ delay: 0.6, duration: 0.5 }}
           >
             <h2>Gerçek Skor</h2>
-            <div className={styles.scoreDisplay}>
-              <div className={styles.scoreRow}>
-                <span className={styles.teamName}>Denizlispor</span>
-                <span className={styles.score}>
-                  {actualScore.denizlisporGoals}
-                </span>
-                <span className={styles.scoreSeparator}>-</span>
-                <span className={styles.score}>
-                  {actualScore.opponentGoals}
-                </span>
-                <span className={styles.teamName}>Rakip</span>
+            {actualScore.denizlisporGoals === null ||
+            actualScore.opponentGoals === null ? (
+              <div className={styles.waitingMessage}>
+                <h3>Maç Henüz Oynanmadı</h3>
+                <p>Maç sonucu için lütfen bekleyin...</p>
               </div>
-            </div>
+            ) : (
+              <div className={styles.scoreDisplay}>
+                <div className={styles.scoreRow}>
+                  <span className={styles.teamName}>Denizlispor</span>
+                  <span className={styles.score}>
+                    {actualScore.denizlisporGoals}
+                  </span>
+                  <span className={styles.scoreSeparator}>-</span>
+                  <span className={styles.score}>
+                    {actualScore.opponentGoals}
+                  </span>
+                  <span className={styles.teamName}>Rakip</span>
+                </div>
+              </div>
+            )}
           </motion.div>
         </div>
 
@@ -1085,41 +1167,55 @@ export default function Game() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.9, duration: 0.5 }}
         >
-          <h2 className={styles.resultTitle}>
-            {actualScore.denizlisporGoals > actualScore.opponentGoals
-              ? `Denizlispor ${actualScore.denizlisporGoals}-${actualScore.opponentGoals} Kazandı! 🎉`
-              : actualScore.denizlisporGoals < actualScore.opponentGoals
-              ? `Denizlispor ${actualScore.denizlisporGoals}-${actualScore.opponentGoals} Kaybetti! 😔`
-              : `Beraberlik: ${actualScore.denizlisporGoals}-${actualScore.opponentGoals} 🤝`}
-          </h2>
+          {actualScore.denizlisporGoals === null ||
+          actualScore.opponentGoals === null ? (
+            <h2 className={styles.resultTitle}>Maç sonucu bekleniyor...</h2>
+          ) : (
+            <>
+              <h2 className={styles.resultTitle}>
+                {actualScore.denizlisporGoals > actualScore.opponentGoals
+                  ? `Denizlispor ${actualScore.denizlisporGoals}-${actualScore.opponentGoals} Kazandı! 🎉`
+                  : actualScore.denizlisporGoals < actualScore.opponentGoals
+                  ? `Denizlispor ${actualScore.denizlisporGoals}-${actualScore.opponentGoals} Kaybetti! 😔`
+                  : `Beraberlik: ${actualScore.denizlisporGoals}-${actualScore.opponentGoals} 🤝`}
+              </h2>
 
-          <p className={styles.predictionLabel}>
-            Tahmininiz: Denizlispor {matchPrediction.denizlisporGoals}-
-            {matchPrediction.opponentGoals} Rakip
-          </p>
+              <p className={styles.predictionLabel}>
+                Tahmininiz: Denizlispor {matchPrediction?.denizlisporGoals || 0}
+                -{matchPrediction?.opponentGoals || 0} Rakip
+              </p>
 
-          <p className={styles.resultMessage}>
-            {matchPrediction.denizlisporGoals ===
-              actualScore.denizlisporGoals &&
-            matchPrediction.opponentGoals === actualScore.opponentGoals
-              ? "Tahmininiz tam olarak doğru! Tebrikler! 🏆"
-              : matchPrediction &&
-                ((matchPrediction.denizlisporGoals >
-                  matchPrediction.opponentGoals &&
-                  actualScore.denizlisporGoals > actualScore.opponentGoals) ||
-                  (matchPrediction.denizlisporGoals <
-                    matchPrediction.opponentGoals &&
-                    actualScore.denizlisporGoals < actualScore.opponentGoals) ||
-                  (matchPrediction.denizlisporGoals ===
-                    matchPrediction.opponentGoals &&
-                    actualScore.denizlisporGoals === actualScore.opponentGoals))
-              ? "Sonucu doğru tahmin ettiniz, ama skor farklıydı. 👍"
-              : "Tahmin yanlış, bir dahaki sefere bol şans! 🔄"}
-          </p>
+              {actualScore.denizlisporGoals === null ||
+              actualScore.opponentGoals === null ? null : (
+                <p className={styles.resultMessage}>
+                  {(matchPrediction?.denizlisporGoals || 0) ===
+                    actualScore.denizlisporGoals &&
+                  (matchPrediction?.opponentGoals || 0) ===
+                    actualScore.opponentGoals
+                    ? "Tahmininiz tam olarak doğru! Tebrikler! 🏆"
+                    : matchPrediction &&
+                      (((matchPrediction?.denizlisporGoals || 0) >
+                        (matchPrediction?.opponentGoals || 0) &&
+                        actualScore.denizlisporGoals >
+                          actualScore.opponentGoals) ||
+                        ((matchPrediction?.denizlisporGoals || 0) <
+                          (matchPrediction?.opponentGoals || 0) &&
+                          actualScore.denizlisporGoals <
+                            actualScore.opponentGoals) ||
+                        ((matchPrediction?.denizlisporGoals || 0) ===
+                          (matchPrediction?.opponentGoals || 0) &&
+                          actualScore.denizlisporGoals ===
+                            actualScore.opponentGoals))
+                    ? "Sonucu doğru tahmin ettiniz, ama skor farklıydı. 👍"
+                    : "Tahmin yanlış, bir dahaki sefere bol şans! 🔄"}
+                </p>
+              )}
 
-          <p className={styles.updateTime}>
-            Son güncelleme: {new Date(lastScoreUpdate).toLocaleTimeString()}
-          </p>
+              <p className={styles.updateTime}>
+                Son güncelleme: {new Date(lastScoreUpdate).toLocaleTimeString()}
+              </p>
+            </>
+          )}
         </motion.div>
 
         {/* Only show replay button on admin page */}

@@ -607,7 +607,7 @@
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
 }
 
-.waitingMessage h2 {
+.waitingMessage h3 {
   color: #f0f0f0;
   margin-bottom: 1rem;
   font-size: 1.8rem;
