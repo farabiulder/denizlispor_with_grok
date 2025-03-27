@@ -175,64 +175,69 @@ const getFallbackMatches = (): MatchResult[] => {
 };
 
 /**
+ * Provides fallback next opponent data when API fails
+ */
+const getFallbackNextOpponent = (): string => {
+  return "Bilinmeyen Rakip";
+};
+
+/**
  * Fetches Denizlispor's next opponent using SerpAPI
  */
 export const fetchNextOpponent = async (): Promise<string> => {
   try {
-    const response = await fetch(
-      `/api/serpapi?query=${encodeURIComponent('Denizlispor bir sonraki maç')}`
-    );
-    
-    if (!response.ok) {
-      throw new Error(`API request failed with status ${response.status}`);
-    }
-    
-    const data = await response.json();
-    
-    // Try to extract next match information
-    if (data.sports_results && data.sports_results.upcoming_match) {
-      const match = data.sports_results.upcoming_match;
-      const opponent = match.teams[0].includes("Denizlispor") 
-        ? match.teams[1] 
-        : match.teams[0];
-      return opponent;
-    }
-    
-    // If we couldn't find the next opponent in sports_results, try organic results
-    if (data.organic_results) {
-      for (const result of data.organic_results) {
-        if (result.snippet && result.snippet.includes("Denizlispor") && 
-            (result.snippet.includes(" vs ") || result.snippet.includes(" - "))) {
-          // Extract opponent name from snippet
-          const vsPattern = /Denizlispor\s+(?:vs|[-])\s+([A-Za-zçğıöşüÇĞİÖŞÜ\s]+)/i;
-          const reversePattern = /([A-Za-zçğıöşüÇĞİÖŞÜ\s]+)\s+(?:vs|[-])\s+Denizlispor/i;
+    const queries = [
+      'Denizlispor sıradaki maç'
+    ];
+
+    for (const query of queries) {
+      const response = await fetch(
+        `/api/serpapi?query=${encodeURIComponent(query)}`
+      );
+      
+      if (!response.ok) {
+        console.warn(`API request failed for query "${query}" with status ${response.status}`);
+        continue;
+      }
+      
+      const data = await response.json();
+      console.log(`SerpAPI response for "${query}":`, data);
+      // Get teams directly from game_spotlight
+      if (data.sports_results.game_spotlight?.teams) {
+        const teams = data.sports_results.game_spotlight.teams;
+        if (teams.length >= 2) {
+          const team1 = teams[0];
+          const team2 = teams[1];
           
-          let match = vsPattern.exec(result.snippet);
-          if (match) {
-            return match[1].trim();
-          }
-          
-          match = reversePattern.exec(result.snippet);
-          if (match) {
-            return match[1].trim();
-          }
+          // Find which team is the opponent
+          const opponent = team1.name.toLowerCase().includes('denizlispor') ? team2.name : team1.name;
+          const matchDate = new Date(data.sports_results.game_spotlight.date);
+          const league = data.sports_results.game_spotlight.league;
+          const stadium = data.sports_results.game_spotlight.stadium;
+
+          console.log(`Found next match: ${opponent} vs Denizlispor`);
+          console.log(`Date: ${matchDate.toLocaleDateString()}`);
+          console.log(`League: ${league}`);
+          console.log(`Stadium: ${stadium}`);
+          return opponent;
         }
       }
     }
     
-    return "Bilinmeyen Rakip";
+    // If we couldn't find any opponent, use fallback data
+    console.warn('Could not find next opponent in API results, using fallback data');
+    return getFallbackNextOpponent();
   } catch (error) {
     console.error('Error fetching next opponent:', error);
-    throw error;
+    return getFallbackNextOpponent();
   }
 };
-
 /**
  * Generates a prediction based on recent match data
  */
 export const generatePrediction = async (): Promise<PredictionData> => {
   try {
-    // Get match data (will use fallback if API fails)
+    // Get match data from API
     const { matches: recentMatches, source } = await fetchRecentMatches();
     let nextOpponent;
     
@@ -241,6 +246,24 @@ export const generatePrediction = async (): Promise<PredictionData> => {
     } catch (opponentError) {
       console.error("Error fetching next opponent:", opponentError);
       nextOpponent = "Bilinmeyen Rakip";
+    }
+    
+    // If no matches were found, return default prediction
+    if (recentMatches.length === 0) {
+      return {
+        predictedScore: {
+          denizlisporGoals: 0,
+          opponentGoals: 0
+        },
+        recentMatches: [],
+        form: {
+          wins: 0,
+          draws: 0,
+          losses: 0
+        },
+        nextOpponent,
+        dataSource: "API'den veri alınamadı"
+      };
     }
     
     // Calculate form (last 5 matches)
@@ -337,22 +360,19 @@ export const generatePrediction = async (): Promise<PredictionData> => {
     };
   } catch (error) {
     console.error('Error generating prediction:', error);
-    
-    // Use fallback data instead of throwing an error
-    const fallbackMatches = getFallbackMatches();
     return {
       predictedScore: {
-        denizlisporGoals: 2,
-        opponentGoals: 1
+        denizlisporGoals: 0,
+        opponentGoals: 0
       },
-      recentMatches: fallbackMatches,
+      recentMatches: [],
       form: {
-        wins: 3,
-        draws: 1,
-        losses: 1
+        wins: 0,
+        draws: 0,
+        losses: 0
       },
-      nextOpponent: "Altay",
-      dataSource: "Fallback data (API hatası)"
+      nextOpponent: "Bilinmeyen Rakip",
+      dataSource: "API hatası"
     };
   }
 };
@@ -406,30 +426,31 @@ export const generatePredictionFromProgressBars = ({
   let opponentGoals: number;
 
   // Very poor performance (0-3): High chance of losing
-  if (finalScore <= 3) {
-    denizlisporGoals = 0;
-    opponentGoals = 3;
-  }
-  // Below average (3-5): Likely to lose or draw
-  else if (finalScore <= 5) {
-    denizlisporGoals = 1;
-    opponentGoals = 2;
-  }
-  // Average performance (5-7): Competitive match
-  else if (finalScore <= 7) {
-    denizlisporGoals = 2;
-    opponentGoals = 2;
-  }
-  // Good performance (7-8.5): Likely to win
-  else if (finalScore <= 8.5) {
-    denizlisporGoals = 2;
-    opponentGoals = 1;
-  }
-  // Excellent performance (8.5-10): Strong win probability
-  else {
-    denizlisporGoals = 3;
-    opponentGoals = 0;
-  }
+if (finalScore <= 1.5) {
+  denizlisporGoals = 0;
+  opponentGoals = 3;
+} 
+// Below average (1.5-2.5): Likely to lose or draw
+else if (finalScore <= 2.5) {
+  denizlisporGoals = 1;
+  opponentGoals = 2;
+} 
+// Average performance (2.5-3.5): Competitive match, higher chance of a draw
+else if (finalScore <= 3.5) {
+  denizlisporGoals = 2;
+  opponentGoals = 2;
+} 
+// Good performance (3.5-4.5): Slight edge to Denizlispor
+else if (finalScore <= 4.5) {
+  denizlisporGoals = 2;
+  opponentGoals = 1;
+} 
+// Excellent performance (4.5-5): High probability of winning
+else {
+  denizlisporGoals = 3;
+  opponentGoals = 0;
+}
+
 
   return {
     predictedScore: {

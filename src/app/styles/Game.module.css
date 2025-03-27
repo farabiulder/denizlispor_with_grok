@@ -192,7 +192,13 @@
 .progressBarFill {
     height: 100%;
     border-radius: 4px;
-    transition: width 0.3s ease;
+    transition: width 0.3s ease-in-out;
+    position: relative;
+    transform-origin: left;
+}
+
+.negativeValue {
+    background-color: #ff4444 !important; /* Red color for negative values */
 }
 
 /* Score display styles */
@@ -955,4 +961,27 @@
     padding: 4px 12px;
     border-radius: 15px;
     font-size: 18px;
+}
+
+.categoryProgress {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    align-items: flex-end;
+}
+
+.storyProgressBar {
+    width: 100px;
+    height: 4px;
+    background-color: rgba(255, 255, 255, 0.2);
+    border-radius: 2px;
+    overflow: hidden;
+    position: relative;
+}
+
+.storyProgressFill {
+    height: 100%;
+    background-color: #fff;
+    border-radius: 2px;
+    transition: width 0.3s ease;
 }
