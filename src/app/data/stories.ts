@@ -1014,8 +1014,7 @@ export const stories: Stories = {
   "Finansal Yönetim": financeRoot,
   "Teknik Ekip": technicalTeamRoot,
   "Sponsorlar": sponsorsRoot,
-  "Taraftar İlişkileri": fansRoot,
-  newStories: "true1" // Current week's story flag
+  "Taraftar İlişkileri": fansRoot
 };
 
 // When accessing stories, type check or use a type guard:

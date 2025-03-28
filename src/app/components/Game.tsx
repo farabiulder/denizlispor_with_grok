@@ -124,6 +124,7 @@ export default function Game() {
   const [lastStoryCompletionDate, setLastStoryCompletionDate] =
     useState<Date | null>(null);
   const [canStartNewStory, setCanStartNewStory] = useState<boolean>(false);
+  const [remainingTime, setRemainingTime] = useState<number>(0);
 
   // Load game state from Supabase
   useEffect(() => {
@@ -699,12 +700,22 @@ export default function Game() {
     }
   };
 
+  // Add this useEffect at the top with other useEffects
+  useEffect(() => {
+    if (!lastStoryCompletionDate) {
+      setLastStoryCompletionDate(new Date());
+    }
+  }, []);
+
   const resetGame = async () => {
     if (!user || !isAdminPage) return;
 
     try {
       // Only reset if we're on the admin page
       if (pathname?.includes("/admin")) {
+        const now = new Date();
+        setLastStoryCompletionDate(now);
+
         // Reset everything to initial state
         const initialState = {
           user_id: user.id,
@@ -712,8 +723,8 @@ export default function Game() {
           completed_categories: [],
           points: 0,
           estimated_scores: {},
-          last_story_completion_date: new Date().toISOString(),
-          updated_at: new Date().toISOString(),
+          last_story_completion_date: now.toISOString(),
+          updated_at: now.toISOString(),
           last_played_story_week: 0,
           last_completion_time: null,
         };
@@ -728,9 +739,10 @@ export default function Game() {
         setEstimatedScores({});
         setMatchPrediction(null);
         setActualScore(null);
-        setLastStoryCompletionDate(new Date());
         setLastPlayedStoryWeek(0);
         setLastCompletionTime(null);
+        setCanStartNewStory(false);
+        setRemainingTime(10);
 
         // Update only the current user's game state in the database
         const { error: gameStateError } = await supabase
@@ -745,7 +757,7 @@ export default function Game() {
           .from("user_points")
           .update({
             total_points: 0,
-            updated_at: new Date().toISOString(),
+            updated_at: now.toISOString(),
           })
           .eq("user_id", user.id);
 
@@ -875,6 +887,17 @@ export default function Game() {
     if (!user) return;
 
     try {
+      const now = new Date();
+      setLastStoryCompletionDate(now);
+      setCanStartNewStory(false);
+      setRemainingTime(10);
+
+      // Reset story-related states but keep progress and points
+      setCompletedCategories([]);
+      setCurrentCategory(null);
+      setCurrentStory(null);
+      setStoryCount(0);
+
       // Keep existing progress and points
       const gameState = {
         user_id: user.id,
@@ -882,23 +905,15 @@ export default function Game() {
         completed_categories: [], // Reset categories to start new stories
         points: points, // Keep existing points
         estimated_scores: estimatedScores,
-        last_story_completion_date: new Date().toISOString(),
-        updated_at: new Date().toISOString(),
+        last_story_completion_date: now.toISOString(),
+        updated_at: now.toISOString(),
       };
 
       const { error } = await supabase
         .from("game_states")
         .upsert(gameState, { onConflict: "user_id" });
-
-      if (error) throw error;
-
-      // Reset story-related states but keep progress and points
-      setCompletedCategories([]);
-      setCurrentCategory(null);
-      setCurrentStory(getStory("Finansal Yönetim")); // Start with first story
-      setStoryCount(1);
-      setLastStoryCompletionDate(new Date());
       window.location.reload();
+      if (error) throw error;
     } catch (err) {
       console.error("Failed to start new story:", err);
     }
@@ -958,8 +973,13 @@ export default function Game() {
       const timeDifference = now - completionTime;
 
       if (isAdminPage) {
-        // 1 minute wait for admin (60000 milliseconds)
-        setCanStartNewStory(timeDifference >= 60000);
+        // 10 seconds wait for admin (10000 milliseconds)
+        const remaining = Math.max(
+          0,
+          Math.ceil((10000 - timeDifference) / 1000)
+        );
+        setRemainingTime(remaining);
+        setCanStartNewStory(timeDifference >= 10000);
       } else {
         // 4 days wait for non-admin (345600000 milliseconds)
         setCanStartNewStory(timeDifference >= 345600000);
@@ -1235,7 +1255,9 @@ export default function Game() {
               }`}
               disabled={!canStartNewStory}
             >
-              {canStartNewStory ? "Yeni Hikaye" : "Lütfen 1 dakika bekleyin"}
+              {canStartNewStory
+                ? "Yeni Hikaye"
+                : `Lütfen ${remainingTime} saniye bekleyin`}
             </button>
             <button onClick={resetGame} className={styles.replayButton}>
               Baştan Başla
@@ -1259,12 +1281,17 @@ export default function Game() {
               ) : (
                 <p className={styles.waitMessage}>
                   Yeni hikaye için{" "}
-                  {4 -
-                    Math.floor(
-                      (new Date().getTime() -
-                        (lastStoryCompletionDate?.getTime() || 0)) /
-                        (1000 * 60 * 60 * 24)
-                    )}{" "}
+                  {lastStoryCompletionDate
+                    ? Math.max(
+                        0,
+                        4 -
+                          Math.floor(
+                            (new Date().getTime() -
+                              lastStoryCompletionDate.getTime()) /
+                              (1000 * 60 * 60 * 24)
+                          )
+                      )
+                    : 4}{" "}
                   gün kaldı
                 </p>
               )}
@@ -1520,7 +1547,7 @@ export default function Game() {
                   <span className={styles.categoryName}>{category}</span>
                   {completedCategories.includes(category) && (
                     <span className={styles.categoryScore}>
-                      Puan: {estimatedScores[category] || 0}/10
+                      Puan: {estimatedScores[category] || 0}/5
                     </span>
                   )}
                 </motion.button>
@@ -1560,7 +1587,9 @@ export default function Game() {
               }`}
               disabled={!canStartNewStory}
             >
-              {canStartNewStory ? "Yeni Hikaye" : "Lütfen 1 dakika bekleyin"}
+              {canStartNewStory
+                ? "Yeni Hikaye"
+                : `Lütfen ${remainingTime} saniye bekleyin`}
             </button>
             <button onClick={resetGame} className={styles.replayButton}>
               Baştan Başla
@@ -1584,12 +1613,17 @@ export default function Game() {
               ) : (
                 <p className={styles.waitMessage}>
                   Yeni hikaye için{" "}
-                  {4 -
-                    Math.floor(
-                      (new Date().getTime() -
-                        (lastStoryCompletionDate?.getTime() || 0)) /
-                        (1000 * 60 * 60 * 24)
-                    )}{" "}
+                  {lastStoryCompletionDate
+                    ? Math.max(
+                        0,
+                        4 -
+                          Math.floor(
+                            (new Date().getTime() -
+                              lastStoryCompletionDate.getTime()) /
+                              (1000 * 60 * 60 * 24)
+                          )
+                      )
+                    : 4}{" "}
                   gün kaldı
                 </p>
               )}
