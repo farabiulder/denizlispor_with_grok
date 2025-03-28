@@ -985,3 +985,19 @@
     border-radius: 2px;
     transition: width 0.3s ease;
 }
+
+.printMatchesButton {
+  background-color: #133b5c;
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+  margin-left: 16px;
+  transition: background-color 0.2s;
+}
+
+.printMatchesButton:hover {
+  background-color: #1a4f7c;
+}

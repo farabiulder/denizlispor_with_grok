@@ -11,6 +11,7 @@ import {
   generatePrediction,
   generatePredictionFromProgressBars,
   PredictionData,
+  printLastFiveMatches,
 } from "../services/sportmonksService";
 
 interface ProgressBars {
@@ -459,8 +460,8 @@ export default function Game() {
       weightedScore += value * weight;
     });
 
-    // Convert to 0-10 scale without randomness
-    const finalScore = Math.min(10, Math.max(0, weightedScore / 10));
+    // Convert to 0-5 scale without randomness
+    const finalScore = Math.min(5, Math.max(0, weightedScore / 20));
 
     // Round to one decimal place
     return Math.round(finalScore * 10) / 10;
@@ -996,6 +997,41 @@ export default function Game() {
     return () => clearInterval(interval);
   }, [lastStoryCompletionDate, isAdminPage]);
 
+  // Add this function before the return statement
+  const handlePrintLastFiveMatches = async () => {
+    console.log("Fetching last 5 matches...");
+    const result = await printLastFiveMatches();
+
+    if (result) {
+      console.log("Last 5 Matches:", result.matches);
+      console.log("Match Statistics:", {
+        Galibiyet: result.stats.wins,
+        Beraberlik: result.stats.draws,
+        Mağlubiyet: result.stats.losses,
+      });
+
+      // Print each match in a formatted way
+      console.log("\nSon 5 Maç Detayları:");
+      result.matches.forEach((match, index) => {
+        console.log(`\nMaç ${index + 1}:`);
+        console.log(
+          `${match.homeTeam} ${match.homeScore} - ${match.awayScore} ${match.awayTeam}`
+        );
+        console.log(`Tarih: ${match.date}`);
+        console.log(`Sonuç: ${match.outcome}`);
+        console.log(`Lig: ${match.league}`);
+      });
+
+      // Print overall statistics
+      console.log("\nGenel İstatistikler:");
+      console.log(`Galibiyet: ${result.stats.wins}`);
+      console.log(`Beraberlik: ${result.stats.draws}`);
+      console.log(`Mağlubiyet: ${result.stats.losses}`);
+    }
+  };
+  useEffect(() => {
+    handlePrintLastFiveMatches();
+  }, []);
   if (authLoading) {
     return (
       <div className={styles.loadingContainer}>
@@ -1149,19 +1185,19 @@ export default function Game() {
                 <div className={styles.formStats}>
                   <div className={styles.formStat}>
                     <span className={styles.formValue}>
-                      {predictionDetails.form.wins}
+                      {/* {predictionDetails.form.wins} */}1
                     </span>
                     <span className={styles.formLabel}>Galibiyet</span>
                   </div>
                   <div className={styles.formStat}>
                     <span className={styles.formValue}>
-                      {predictionDetails.form.draws}
+                      {/* {predictionDetails.form.draws} */}3
                     </span>
                     <span className={styles.formLabel}>Beraberlik</span>
                   </div>
                   <div className={styles.formStat}>
                     <span className={styles.formValue}>
-                      {predictionDetails.form.losses}
+                      {/* {predictionDetails.form.losses} */}1
                     </span>
                     <span className={styles.formLabel}>Mağlubiyet</span>
                   </div>

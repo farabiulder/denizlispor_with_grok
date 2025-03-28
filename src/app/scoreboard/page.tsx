@@ -17,6 +17,15 @@ export default function Scoreboard() {
   const [error, setError] = useState<string | null>(null);
   const [showRetry, setShowRetry] = useState(false);
 
+  // Add effect for one-time refresh
+  useEffect(() => {
+    const hasRefreshed = sessionStorage.getItem("scoreboardRefreshed");
+    if (!hasRefreshed) {
+      sessionStorage.setItem("scoreboardRefreshed", "true");
+      window.location.reload();
+    }
+  }, []);
+
   const fetchUserScores = async () => {
     // Reset the retry button state
     setShowRetry(false);

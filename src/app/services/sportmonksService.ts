@@ -462,4 +462,156 @@ else {
     nextOpponent: apiPrediction.nextOpponent,
     dataSource: "Kategori Puanları Analizi"
   };
+};
+
+/**
+ * Fetches and prints the last 5 match data from SerpAPI
+ */
+export const printLastFiveMatches = async () => {
+  try {
+    console.log("Fetching match data from SerpAPI...");
+    const response = await fetch("/api/serpapi?query=Denizlispor");
+    const data = await response.json();
+    console.log("gazi SerpAPI response:", data);
+    if (!data || !data.sports_results) {
+      console.log("No sports results found in SerpAPI response");
+      return null;
+    }
+
+    const matches = [];
+    const stats = { wins: 0, draws: 0, losses: 0 };
+
+    // Process matches from game_spotlight and game_results
+    const allGames = [
+      ...(data.sports_results.game_spotlight ? [data.sports_results.game_spotlight] : []),
+      ...(data.sports_results.game_results || [])
+    ];
+
+    // Process up to 5 most recent matches
+    for (let i = 0; i < Math.min(5, allGames.length); i++) {
+      const game = allGames[i];
+      if (!game || !game.teams) continue;
+
+      const isDenizlisporHome = game.teams[0]?.toLowerCase().includes('denizlispor');
+      const homeTeam = game.teams[0] || 'Unknown';
+      const awayTeam = game.teams[1] || 'Unknown';
+      const homeScore = parseInt(game.scores?.[0]) || 0;
+      const awayScore = parseInt(game.scores?.[1]) || 0;
+
+      let outcome;
+      if (isDenizlisporHome) {
+        if (homeScore > awayScore) {
+          outcome = "Galibiyet";
+          stats.wins++;
+        } else if (homeScore < awayScore) {
+          outcome = "Mağlubiyet";
+          stats.losses++;
+        } else {
+          outcome = "Beraberlik";
+          stats.draws++;
+        }
+      } else {
+        if (awayScore > homeScore) {
+          outcome = "Galibiyet";
+          stats.wins++;
+        } else if (awayScore < homeScore) {
+          outcome = "Mağlubiyet";
+          stats.losses++;
+        } else {
+          outcome = "Beraberlik";
+          stats.draws++;
+        }
+      }
+
+      matches.push({
+        homeTeam,
+        awayTeam,
+        homeScore,
+        awayScore,
+        date: game.date || 'Tarih belirtilmemiş',
+        league: game.league || '3. Lig',
+        outcome
+      });
+    }
+
+    console.log("Processed matches:", matches);
+    console.log("Match statistics:", stats);
+
+    return {
+      matches,
+      stats
+    };
+  } catch (error) {
+    console.error("Error fetching match data:", error);
+    return null;
+  }
+};
+
+/**
+ * Provides fallback match data with statistics when API fails
+ */
+const getFallbackMatchesWithStats = () => {
+  const matches = [
+    {
+      homeTeam: "Turgutluspor",
+      awayTeam: "Denizlispor",
+      homeScore: 1,
+      awayScore: 1,
+      date: "2024-03-26",
+      isDenizlisporHome: false,
+      league: "TFF Third League",
+      outcome: "Beraberlik"
+    },
+    {
+      homeTeam: "Denizlispor",
+      awayTeam: "Kömürspor",
+      homeScore: 2,
+      awayScore: 2,
+      date: "2024-03-10",
+      isDenizlisporHome: true,
+      league: "TFF Third League",
+      outcome: "Beraberlik"
+    },
+    {
+      homeTeam: "Denizlispor",
+      awayTeam: "TM Kırıkkalespor",
+      homeScore: 4,
+      awayScore: 1,
+      date: "2024-03-03",
+      isDenizlisporHome: true,
+      league: "TFF Third League",
+      outcome: "Galibiyet"
+    },
+    {
+      homeTeam: "Kahramanmaraş İstiklal Spor",
+      awayTeam: "Denizlispor",
+      homeScore: 1,
+      awayScore: 1,
+      date: "2024-02-25",
+      isDenizlisporHome: false,
+      league: "TFF Third League",
+      outcome: "Beraberlik"
+    },
+    {
+      homeTeam: "Denizlispor",
+      awayTeam: "Tepecikspor",
+      homeScore: 1,
+      awayScore: 1,
+      date: "2024-02-18",
+      isDenizlisporHome: true,
+      league: "TFF Third League",
+      outcome: "Beraberlik"
+    }
+  ];
+
+  const stats = {
+    wins: matches.filter(m => m.outcome === 'Galibiyet').length,
+    draws: matches.filter(m => m.outcome === 'Beraberlik').length,
+    losses: matches.filter(m => m.outcome === 'Mağlubiyet').length
+  };
+
+  return {
+    matches,
+    stats
+  };
 }; 
