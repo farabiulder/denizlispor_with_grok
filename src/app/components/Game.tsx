@@ -45,6 +45,7 @@ interface GameState {
   estimated_scores: Record<string, number>;
   updated_at: Date;
   last_completion_time?: number | null;
+  bonus_awarded?: boolean;
 }
 
 interface PredictionDetails extends PredictionData {
@@ -126,6 +127,36 @@ export default function Game() {
     useState<Date | null>(null);
   const [canStartNewStory, setCanStartNewStory] = useState<boolean>(false);
   const [remainingTime, setRemainingTime] = useState<number>(0);
+  const [bonusAwarded, setBonusAwarded] = useState<boolean>(false);
+
+  // Add this useEffect near the top with other useEffects
+  useEffect(() => {
+    const loadPoints = async () => {
+      if (!user) return;
+
+      try {
+        const { data: pointsData, error } = await supabase
+          .from("user_points")
+          .select("total_points")
+          .eq("user_id", user.id)
+          .single();
+
+        if (error) {
+          console.error("Error loading points:", error);
+          return;
+        }
+
+        if (pointsData) {
+          console.log("Loaded points from database:", pointsData.total_points);
+          setPoints(pointsData.total_points);
+        }
+      } catch (err) {
+        console.error("Error in loadPoints:", err);
+      }
+    };
+
+    loadPoints();
+  }, [user]);
 
   // Load game state from Supabase
   useEffect(() => {
@@ -217,6 +248,13 @@ export default function Game() {
         .eq("user_id", user?.id)
         .single();
 
+      // Also fetch current points from user_points table
+      const { data: pointsData } = await supabase
+        .from("user_points")
+        .select("total_points")
+        .eq("user_id", user?.id)
+        .single();
+
       if (error) {
         // Handle PGRST116 (not found) error silently, but log other errors
         if (error.code !== "PGRST116") {
@@ -240,7 +278,8 @@ export default function Game() {
           setProgressBars(data.progress_bars);
         }
         setCompletedCategories(data.completed_categories);
-        setPoints(data.points);
+        // Use points from user_points table if available
+        setPoints(pointsData?.total_points || data.points || 0);
         setEstimatedScores(data.estimated_scores || {});
 
         // Load the last played story week
@@ -356,11 +395,96 @@ export default function Game() {
       console.log("Setting up realtime subscription for score updates");
 
       // First fetch initial score
-      fetchActualScore().then((initialScore) => {
+      fetchActualScore().then(async (initialScore) => {
         if (initialScore) {
           console.log("Initial score loaded:", initialScore);
           setActualScore(initialScore);
           setLastScoreUpdate(Date.now());
+
+          // Get the game state to check if bonus was awarded
+          const { data: gameStateData } = await supabase
+            .from("game_states")
+            .select("bonus_awarded")
+            .eq("user_id", user?.id)
+            .single();
+
+          const bonusWasAwarded = gameStateData?.bonus_awarded || false;
+
+          // Check for exact match and award points if needed
+          if (
+            !bonusWasAwarded &&
+            matchPrediction &&
+            initialScore.denizlisporGoals !== null &&
+            initialScore.opponentGoals !== null &&
+            matchPrediction.denizlisporGoals ===
+              initialScore.denizlisporGoals &&
+            matchPrediction.opponentGoals === initialScore.opponentGoals
+          ) {
+            console.log("Exact match found! Awarding bonus points...");
+
+            // Get current points from database
+            const { data: currentPointsData } = await supabase
+              .from("user_points")
+              .select("total_points")
+              .eq("user_id", user?.id)
+              .single();
+
+            const currentPoints = currentPointsData?.total_points || 0;
+            const newTotalPoints = currentPoints + 500;
+
+            // Update points in the database using upsert
+            if (user) {
+              const { error: pointsError } = await supabase
+                .from("user_points")
+                .upsert(
+                  {
+                    user_id: user.id,
+                    total_points: newTotalPoints,
+                    updated_at: new Date().toISOString(),
+                  },
+                  {
+                    onConflict: "user_id",
+                  }
+                );
+
+              if (!pointsError) {
+                // Update game state to mark bonus as awarded
+                const { error: gameStateError } = await supabase
+                  .from("game_states")
+                  .update({ bonus_awarded: true })
+                  .eq("user_id", user.id);
+
+                if (!gameStateError) {
+                  // Only if both updates are successful, update local state
+                  setPoints(newTotalPoints);
+                  setBonusAwarded(true);
+                  console.log(
+                    "Bonus points awarded successfully! New total:",
+                    newTotalPoints
+                  );
+
+                  // Force reload points from database to ensure consistency
+                  const { data: updatedPointsData } = await supabase
+                    .from("user_points")
+                    .select("total_points")
+                    .eq("user_id", user.id)
+                    .single();
+
+                  if (updatedPointsData) {
+                    setPoints(updatedPointsData.total_points);
+                    console.log(
+                      "Points updated from database:",
+                      updatedPointsData.total_points
+                    );
+                  }
+                } else {
+                  console.error("Error updating game state:", gameStateError);
+                }
+              } else {
+                console.error("Error updating user points:", pointsError);
+              }
+            }
+          }
         }
       });
 
@@ -385,6 +509,94 @@ export default function Game() {
               console.log("Updating displayed score");
               setActualScore(freshScore);
               setLastScoreUpdate(Date.now());
+
+              // Get the game state to check if bonus was awarded
+              const { data: gameStateData } = await supabase
+                .from("game_states")
+                .select("bonus_awarded")
+                .eq("user_id", user?.id)
+                .single();
+
+              const bonusWasAwarded = gameStateData?.bonus_awarded || false;
+
+              // Check for exact match and award points if needed
+              if (
+                !bonusWasAwarded &&
+                matchPrediction &&
+                freshScore.denizlisporGoals !== null &&
+                freshScore.opponentGoals !== null &&
+                matchPrediction.denizlisporGoals ===
+                  freshScore.denizlisporGoals &&
+                matchPrediction.opponentGoals === freshScore.opponentGoals
+              ) {
+                console.log("Exact match found! Awarding bonus points...");
+
+                // Get current points from database
+                const { data: currentPointsData } = await supabase
+                  .from("user_points")
+                  .select("total_points")
+                  .eq("user_id", user?.id)
+                  .single();
+
+                const currentPoints = currentPointsData?.total_points || 0;
+                const newTotalPoints = currentPoints + 500;
+
+                // Update points in the database using upsert
+                if (user) {
+                  const { error: pointsError } = await supabase
+                    .from("user_points")
+                    .upsert(
+                      {
+                        user_id: user.id,
+                        total_points: newTotalPoints,
+                        updated_at: new Date().toISOString(),
+                      },
+                      {
+                        onConflict: "user_id",
+                      }
+                    );
+
+                  if (!pointsError) {
+                    // Update game state to mark bonus as awarded
+                    const { error: gameStateError } = await supabase
+                      .from("game_states")
+                      .update({ bonus_awarded: true })
+                      .eq("user_id", user.id);
+
+                    if (!gameStateError) {
+                      // Only if both updates are successful, update local state
+                      setPoints(newTotalPoints);
+                      setBonusAwarded(true);
+                      console.log(
+                        "Bonus points awarded successfully! New total:",
+                        newTotalPoints
+                      );
+
+                      // Force reload points from database to ensure consistency
+                      const { data: updatedPointsData } = await supabase
+                        .from("user_points")
+                        .select("total_points")
+                        .eq("user_id", user.id)
+                        .single();
+
+                      if (updatedPointsData) {
+                        setPoints(updatedPointsData.total_points);
+                        console.log(
+                          "Points updated from database:",
+                          updatedPointsData.total_points
+                        );
+                      }
+                    } else {
+                      console.error(
+                        "Error updating game state:",
+                        gameStateError
+                      );
+                    }
+                  } else {
+                    console.error("Error updating user points:", pointsError);
+                  }
+                }
+              }
             }
           }
         )
@@ -397,7 +609,7 @@ export default function Game() {
         supabase.removeChannel(channel);
       };
     }
-  }, [completedCategories.length]);
+  }, [completedCategories.length, matchPrediction, user]);
 
   const selectCategory = (category: string) => {
     if (!completedCategories.includes(category)) {
@@ -413,58 +625,47 @@ export default function Game() {
     category: string,
     progressBars: ProgressBars
   ): number => {
-    // Different weights for different categories
-    const weights = {
-      "Finansal Yönetim": {
-        Finance: 0.6,
-        Sponsors: 0.3,
-        TechnicalTeam: 0.05,
-        Fans: 0.05,
-      },
-      "Teknik Ekip": {
-        TechnicalTeam: 0.7,
-        Finance: 0.1,
-        Sponsors: 0.1,
-        Fans: 0.1,
-      },
-      Sponsorlar: {
-        Sponsors: 0.6,
-        Finance: 0.2,
-        TechnicalTeam: 0.1,
-        Fans: 0.1,
-      },
-      "Taraftar İlişkileri": {
-        Fans: 0.7,
-        Finance: 0.1,
-        TechnicalTeam: 0.1,
-        Sponsors: 0.1,
-      },
-    };
+    // Get the main category's progress value
+    const mainCategoryKey =
+      category === "Finansal Yönetim"
+        ? "Finance"
+        : category === "Teknik Ekip"
+        ? "TechnicalTeam"
+        : category === "Sponsorlar"
+        ? "Sponsors"
+        : "Fans";
 
-    // Default weights if category not found
-    const defaultWeights = {
-      Finance: 0.25,
-      TechnicalTeam: 0.25,
-      Sponsors: 0.25,
-      Fans: 0.25,
-    };
+    const mainCategoryProgress =
+      progressBars[mainCategoryKey as keyof ProgressBars];
 
-    // Get the appropriate weights for this category
-    const categoryWeights =
-      weights[category as keyof typeof weights] || defaultWeights;
+    // Calculate score based on the sum of effects from choices
+    // For a sum of effects around:
+    // 5-10 (poor choices) -> score around 1.0-2.0
+    // 10-15 (average choices) -> score around 2.0-3.0
+    // 15-20 (good choices) -> score around 3.0-4.0
+    // 20-25 (very good choices) -> score around 4.0-4.5
+    // >25 (excellent choices) -> score 4.5-5.0
 
-    // Calculate weighted score (0-100 scale)
-    let weightedScore = 0;
-    Object.entries(progressBars).forEach(([key, value]) => {
-      const weight = categoryWeights[key as keyof typeof categoryWeights];
-      weightedScore += value * weight;
-    });
+    // Since progress starts at 10, subtract 10 to get the actual sum of effects
+    const sumOfEffects = mainCategoryProgress - 10;
 
-    // Convert to 0-5 scale without randomness
-    const finalScore = Math.min(5, Math.max(0, weightedScore / 20));
+    // Calculate score using a linear scale
+    let score: number;
+
+    if (sumOfEffects <= 5) {
+      score = 1.0 + sumOfEffects / 5; // 1.0 to 2.0
+    } else if (sumOfEffects <= 10) {
+      score = 2.0 + (sumOfEffects - 5) / 5; // 2.0 to 3.0
+    } else if (sumOfEffects <= 15) {
+      score = 3.0 + (sumOfEffects - 10) / 5; // 3.0 to 4.0
+    } else if (sumOfEffects <= 20) {
+      score = 4.0 + (sumOfEffects - 15) / 10; // 4.0 to 4.5
+    } else {
+      score = 4.5 + (sumOfEffects - 20) / 10; // 4.5 to 5.0
+    }
 
     // Round to one decimal place
-    return Math.round(finalScore * 10) / 10;
+    return Math.round(score * 10) / 10;
   };
 
   // Modify the completeCategory function
@@ -537,6 +738,7 @@ export default function Game() {
   // Modify the chooseOption function
   const chooseOption = (option: Option) => {
     setStoryStarted(true);
+
     // Update progress bars based on option effects
     setProgressBars((prevBars) => {
       const newBars = { ...prevBars };
@@ -547,26 +749,24 @@ export default function Game() {
       return newBars;
     });
 
-    // Move to next story or complete category
-    if (storyCount < 5) {
-      setStoryCount(storyCount + 1);
+    // Check if this is the end of the story (either by "End" text or empty options)
+    const isEndOfStory =
+      option.nextStory.text === "End" || option.nextStory.options.length === 0;
 
-      // Ensure the next story has options
-      if (!option.nextStory.options || option.nextStory.options.length === 0) {
-        const fallbackOptions = generateFallbackOptions(currentCategory || "");
-        option.nextStory.options = fallbackOptions;
-      }
+    // Check if we've reached the story limit
+    const isStoryLimitReached = storyCount >= 5;
 
-      setCurrentStory(option.nextStory);
-    } else {
-      // Category completed
+    // If either condition is met, complete the category
+    if (isEndOfStory || isStoryLimitReached) {
       if (currentCategory) {
-        completeCategory(currentCategory).then(() => {
-          setCurrentCategory(null);
-          setCurrentStory(null);
-        });
+        completeCategory(currentCategory);
       }
+      return;
     }
+
+    // If not at the end, proceed to next story
+    setStoryCount((prevCount) => prevCount + 1);
+    setCurrentStory(option.nextStory);
   };
 
   const goBackToCategories = () => {
@@ -728,6 +928,7 @@ export default function Game() {
           updated_at: now.toISOString(),
           last_played_story_week: 0,
           last_completion_time: null,
+          bonus_awarded: false,
         };
 
         // Reset all local state first
@@ -744,6 +945,7 @@ export default function Game() {
         setLastCompletionTime(null);
         setCanStartNewStory(false);
         setRemainingTime(10);
+        setBonusAwarded(false);
 
         // Update only the current user's game state in the database
         const { error: gameStateError } = await supabase
@@ -1247,23 +1449,31 @@ export default function Game() {
                   {(matchPrediction?.denizlisporGoals || 0) ===
                     actualScore.denizlisporGoals &&
                   (matchPrediction?.opponentGoals || 0) ===
-                    actualScore.opponentGoals
-                    ? "Tahmininiz tam olarak doğru! Tebrikler! 🏆"
-                    : matchPrediction &&
-                      (((matchPrediction?.denizlisporGoals || 0) >
+                    actualScore.opponentGoals ? (
+                    <>
+                      Tahmininiz tam olarak doğru! Tebrikler! 🏆
+                      <br />
+                      <span className={styles.bonusPoints}>
+                        +500 Bonus Puan Kazandınız!
+                      </span>
+                    </>
+                  ) : matchPrediction &&
+                    (((matchPrediction?.denizlisporGoals || 0) >
+                      (matchPrediction?.opponentGoals || 0) &&
+                      actualScore.denizlisporGoals >
+                        actualScore.opponentGoals) ||
+                      ((matchPrediction?.denizlisporGoals || 0) <
                         (matchPrediction?.opponentGoals || 0) &&
-                        actualScore.denizlisporGoals >
+                        actualScore.denizlisporGoals <
                           actualScore.opponentGoals) ||
-                        ((matchPrediction?.denizlisporGoals || 0) <
-                          (matchPrediction?.opponentGoals || 0) &&
-                          actualScore.denizlisporGoals <
-                            actualScore.opponentGoals) ||
-                        ((matchPrediction?.denizlisporGoals || 0) ===
-                          (matchPrediction?.opponentGoals || 0) &&
-                          actualScore.denizlisporGoals ===
-                            actualScore.opponentGoals))
-                    ? "Sonucu doğru tahmin ettiniz, ama skor farklıydı. 👍"
-                    : "Tahmin yanlış, bir dahaki sefere bol şans! 🔄"}
+                      ((matchPrediction?.denizlisporGoals || 0) ===
+                        (matchPrediction?.opponentGoals || 0) &&
+                        actualScore.denizlisporGoals ===
+                          actualScore.opponentGoals)) ? (
+                    "Sonucu doğru tahmin ettiniz, ama skor farklıydı. 👍"
+                  ) : (
+                    "Tahmin yanlış, bir dahaki sefere bol şans! 🔄"
+                  )}
                 </p>
               )}
 

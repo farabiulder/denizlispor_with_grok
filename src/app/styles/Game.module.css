@@ -1001,3 +1001,24 @@
 .printMatchesButton:hover {
   background-color: #1a4f7c;
 }
+
+.bonusPoints {
+  display: block;
+  margin-top: 8px;
+  color: #4CAF50;
+  font-weight: bold;
+  font-size: 1.2em;
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.05);
+  }
+  100% {
+    transform: scale(1);
+  }
+}

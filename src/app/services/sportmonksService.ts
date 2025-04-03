@@ -50,12 +50,25 @@ export const fetchRecentMatches = async (): Promise<{ matches: MatchResult[], so
       `/api/serpapi?query=${encodeURIComponent('Denizlispor son 5 maç sonuçları')}`
     );
     
+    // If the API request fails, immediately return fallback data
     if (!response.ok) {
-      throw new Error(`API request failed with status ${response.status}`);
+      console.warn('SerpAPI request failed, using fallback data');
+      return { 
+        matches: getFallbackMatches(), 
+        source: "Fallback data (API bağlantı hatası)" 
+      };
     }
     
     const data = await response.json();
-    console.log("SerpAPI response:", data); // Log the response for debugging
+    
+    // If we got an error response from SerpAPI, use fallback data
+    if (data.error) {
+      console.warn('SerpAPI returned error:', data.error);
+      return { 
+        matches: getFallbackMatches(), 
+        source: "Fallback data (API hatası)" 
+      };
+    }
     
     // Try to extract sports results from the SerpAPI response
     let matches: MatchResult[] = [];
@@ -102,7 +115,7 @@ export const fetchRecentMatches = async (): Promise<{ matches: MatchResult[], so
       
       // If we still couldn't find any matches, use fallback data
       if (matches.length === 0) {
-        console.log("Using fallback match data");
+        console.log("No valid matches found in API response, using fallback data");
         return { 
           matches: getFallbackMatches(), 
           source: "Fallback data (API'den veri alınamadı)" 
@@ -471,11 +484,24 @@ export const printLastFiveMatches = async () => {
   try {
     console.log("Fetching match data from SerpAPI...");
     const response = await fetch("/api/serpapi?query=Denizlispor");
+    
+    // If the API request fails, use fallback data
+    if (!response.ok) {
+      console.warn('SerpAPI request failed, using fallback data');
+      return getFallbackMatchesWithStats();
+    }
+    
     const data = await response.json();
-    console.log("gazi SerpAPI response:", data);
+    
+    // If we got an error response from SerpAPI, use fallback data
+    if (data.error) {
+      console.warn('SerpAPI returned error:', data.error);
+      return getFallbackMatchesWithStats();
+    }
+    
     if (!data || !data.sports_results) {
-      console.log("No sports results found in SerpAPI response");
-      return null;
+      console.log("No sports results found in SerpAPI response, using fallback data");
+      return getFallbackMatchesWithStats();
     }
 
     const matches = [];
@@ -534,6 +560,12 @@ export const printLastFiveMatches = async () => {
       });
     }
 
+    // If we couldn't find any valid matches, use fallback data
+    if (matches.length === 0) {
+      console.log("No valid matches found in API response, using fallback data");
+      return getFallbackMatchesWithStats();
+    }
+
     console.log("Processed matches:", matches);
     console.log("Match statistics:", stats);
 
@@ -543,7 +575,7 @@ export const printLastFiveMatches = async () => {
     };
   } catch (error) {
     console.error("Error fetching match data:", error);
-    return null;
+    return getFallbackMatchesWithStats();
   }
 };
 
