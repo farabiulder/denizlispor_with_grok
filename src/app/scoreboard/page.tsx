@@ -19,10 +19,19 @@ export default function Scoreboard() {
 
   // Add effect for one-time refresh
   useEffect(() => {
-    const hasRefreshed = sessionStorage.getItem("scoreboardRefreshed");
-    if (!hasRefreshed) {
-      sessionStorage.setItem("scoreboardRefreshed", "true");
-      window.location.reload();
+    try {
+      const hasRefreshed = sessionStorage.getItem("scoreboardRefreshed");
+      if (!hasRefreshed) {
+        // Set the flag before reloading to prevent infinite loops
+        sessionStorage.setItem("scoreboardRefreshed", "true");
+        // Use a small timeout to ensure the session storage is set
+        setTimeout(() => {
+          window.location.reload();
+        }, 100);
+      }
+    } catch (error) {
+      console.error("Error accessing sessionStorage:", error);
+      // If sessionStorage fails, just continue without reloading
     }
   }, []);
 

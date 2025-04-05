@@ -56,7 +56,7 @@ export default function AdminPage() {
     try {
       const { data, error } = await supabase
         .from("users")
-        .select("id, email, created_at, first_name");
+        .select("id, email, created_at, first_name, last_name");
 
       if (error) {
         console.error("Error fetching users:", error);
@@ -68,7 +68,10 @@ export default function AdminPage() {
           data.map((user) => ({
             id: user.id,
             email: user.email,
-            name: user.first_name || "",
+            name:
+              user.first_name && user.last_name
+                ? `${user.first_name} ${user.last_name}`
+                : user.first_name || "İsimsiz Kullanıcı",
             created_at: user.created_at,
           }))
         );

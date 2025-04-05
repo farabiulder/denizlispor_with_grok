@@ -17,7 +17,7 @@ export default function Auth() {
   const [message, setMessage] = useState<{ text: string; type: string } | null>(
     null
   );
-  const { signIn, signUp } = useAuth();
+  const { signIn, signUp, updateProfile, user } = useAuth();
   const router = useRouter();
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -48,7 +48,11 @@ export default function Auth() {
           try {
             const { error: updateError } = await supabase
               .from("users")
-              .update({ first_name: firstName, last_name: lastName })
+              .update({
+                email: email,
+                first_name: firstName,
+                last_name: lastName,
+              })
               .eq("id", data.user.id);
 
             if (updateError) {
@@ -92,6 +96,34 @@ export default function Auth() {
     router.push("/reset-password/request");
   };
 
+  const handleFirstNameChange = async (
+    e: React.ChangeEvent<HTMLInputElement>
+  ) => {
+    const newFirstName = e.target.value;
+    setFirstName(newFirstName);
+    if (!isLogin && user) {
+      try {
+        await updateProfile(newFirstName, lastName);
+      } catch (err) {
+        console.error("Error updating first name:", err);
+      }
+    }
+  };
+
+  const handleLastNameChange = async (
+    e: React.ChangeEvent<HTMLInputElement>
+  ) => {
+    const newLastName = e.target.value;
+    setLastName(newLastName);
+    if (!isLogin && user) {
+      try {
+        await updateProfile(firstName, newLastName);
+      } catch (err) {
+        console.error("Error updating last name:", err);
+      }
+    }
+  };
+
   return (
     <motion.div
       className={styles.authContainer}
@@ -120,7 +152,7 @@ export default function Auth() {
                   id="firstName"
                   type="text"
                   value={firstName}
-                  onChange={(e) => setFirstName(e.target.value)}
+                  onChange={handleFirstNameChange}
                   required={!isLogin}
                   className={styles.input}
                 />
@@ -132,7 +164,7 @@ export default function Auth() {
                   id="lastName"
                   type="text"
                   value={lastName}
-                  onChange={(e) => setLastName(e.target.value)}
+                  onChange={handleLastNameChange}
                   required={!isLogin}
                   className={styles.input}
                 />

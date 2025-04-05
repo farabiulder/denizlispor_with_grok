@@ -402,17 +402,31 @@ export default function Game() {
           setLastScoreUpdate(Date.now());
 
           // Get the game state to check if bonus was awarded
-          const { data: gameStateData } = await supabase
+          const { data: gameStateData, error: gameStateError } = await supabase
             .from("game_states")
-            .select("bonus_awarded")
+            .select("*")
             .eq("user_id", user?.id)
             .single();
 
-          const bonusWasAwarded = gameStateData?.bonus_awarded || false;
+          // If there's an error about missing column, assume bonus wasn't awarded
+          const bonusWasAwarded =
+            gameStateError?.code === "PGRST204"
+              ? false
+              : gameStateData?.bonus_awarded || false;
+
+          // Get current points from database to ensure we have the latest value
+          const { data: currentPointsData } = await supabase
+            .from("user_points")
+            .select("total_points")
+            .eq("user_id", user?.id)
+            .single();
+
+          const currentPoints = currentPointsData?.total_points || 0;
 
           // Check for exact match and award points if needed
           if (
             !bonusWasAwarded &&
+            !bonusAwarded && // Add local state check
             matchPrediction &&
             initialScore.denizlisporGoals !== null &&
             initialScore.opponentGoals !== null &&
@@ -420,68 +434,54 @@ export default function Game() {
               initialScore.denizlisporGoals &&
             matchPrediction.opponentGoals === initialScore.opponentGoals
           ) {
-            console.log("Exact match found! Awarding bonus points...");
+            console.log("Exact match found! Current points:", currentPoints);
 
-            // Get current points from database
-            const { data: currentPointsData } = await supabase
-              .from("user_points")
-              .select("total_points")
-              .eq("user_id", user?.id)
-              .single();
+            // Set local bonus awarded state immediately to prevent duplicate awards
+            setBonusAwarded(true);
 
-            const currentPoints = currentPointsData?.total_points || 0;
-            const newTotalPoints = currentPoints + 500;
+            const newTotalPoints = currentPoints + 500; // Add exactly 500 points
 
             // Update points in the database using upsert
             if (user) {
               const { error: pointsError } = await supabase
                 .from("user_points")
-                .upsert(
-                  {
-                    user_id: user.id,
-                    total_points: newTotalPoints,
-                    updated_at: new Date().toISOString(),
-                  },
-                  {
-                    onConflict: "user_id",
-                  }
-                );
+                .update({
+                  // Use update instead of upsert
+                  total_points: newTotalPoints,
+                  updated_at: new Date().toISOString(),
+                })
+                .eq("user_id", user.id); // Add equality condition
 
               if (!pointsError) {
-                // Update game state to mark bonus as awarded
-                const { error: gameStateError } = await supabase
-                  .from("game_states")
-                  .update({ bonus_awarded: true })
-                  .eq("user_id", user.id);
+                try {
+                  // Try to update game state to mark bonus as awarded
+                  const { error: gameStateError } = await supabase
+                    .from("game_states")
+                    .update({
+                      bonus_awarded: true,
+                      updated_at: new Date().toISOString(),
+                    })
+                    .eq("user_id", user.id);
 
-                if (!gameStateError) {
-                  // Only if both updates are successful, update local state
+                  if (gameStateError && gameStateError.code !== "PGRST204") {
+                    console.error("Error updating game state:", gameStateError);
+                  }
+
+                  // Update local state with new total
                   setPoints(newTotalPoints);
-                  setBonusAwarded(true);
                   console.log(
                     "Bonus points awarded successfully! New total:",
                     newTotalPoints
                   );
-
-                  // Force reload points from database to ensure consistency
-                  const { data: updatedPointsData } = await supabase
-                    .from("user_points")
-                    .select("total_points")
-                    .eq("user_id", user.id)
-                    .single();
-
-                  if (updatedPointsData) {
-                    setPoints(updatedPointsData.total_points);
-                    console.log(
-                      "Points updated from database:",
-                      updatedPointsData.total_points
-                    );
-                  }
-                } else {
-                  console.error("Error updating game state:", gameStateError);
+                } catch (err) {
+                  console.error("Error in bonus award process:", err);
+                  // Revert local bonus awarded state if there was an error
+                  setBonusAwarded(false);
                 }
               } else {
                 console.error("Error updating user points:", pointsError);
+                // Revert local bonus awarded state if there was an error
+                setBonusAwarded(false);
               }
             }
           }
@@ -557,14 +557,24 @@ export default function Game() {
                     );
 
                   if (!pointsError) {
-                    // Update game state to mark bonus as awarded
-                    const { error: gameStateError } = await supabase
-                      .from("game_states")
-                      .update({ bonus_awarded: true })
-                      .eq("user_id", user.id);
+                    try {
+                      // Try to update game state to mark bonus as awarded
+                      const { error: gameStateError } = await supabase
+                        .from("game_states")
+                        .update({ bonus_awarded: true })
+                        .eq("user_id", user.id);
 
-                    if (!gameStateError) {
-                      // Only if both updates are successful, update local state
+                      if (gameStateError) {
+                        // If the error is about missing column, we can ignore it
+                        if (gameStateError.code !== "PGRST204") {
+                          console.error(
+                            "Error updating game state:",
+                            gameStateError
+                          );
+                        }
+                      }
+
+                      // Update local state regardless of game state update
                       setPoints(newTotalPoints);
                       setBonusAwarded(true);
                       console.log(
@@ -586,11 +596,8 @@ export default function Game() {
                           updatedPointsData.total_points
                         );
                       }
-                    } else {
-                      console.error(
-                        "Error updating game state:",
-                        gameStateError
-                      );
+                    } catch (err) {
+                      console.error("Error in bonus award process:", err);
                     }
                   } else {
                     console.error("Error updating user points:", pointsError);

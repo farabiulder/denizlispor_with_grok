@@ -43,7 +43,7 @@ export default function Profile() {
 
   useEffect(() => {
     if (!loading && !user) {
-      router.push("/login");
+      router.push("/");
     }
     if (user) {
       setEmail(user.email || "");
