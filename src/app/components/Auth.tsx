@@ -44,22 +44,24 @@ export default function Auth() {
         if (error) throw error;
 
         if (data?.user) {
-          // Registration successful, update profile
+          // Registration successful, insert user profile
           try {
-            const { error: updateError } = await supabase
-              .from("users")
-              .update({
+            const { error: insertError } = await supabase.from("users").insert([
+              {
+                id: data.user.id,
                 email: email,
                 first_name: firstName,
                 last_name: lastName,
-              })
-              .eq("id", data.user.id);
+              },
+            ]);
 
-            if (updateError) {
-              console.error("Error updating profile:", updateError);
+            if (insertError) {
+              console.error("Error inserting profile:", insertError);
+              throw insertError;
             }
           } catch (updateErr) {
-            console.error("Profile update error:", updateErr);
+            console.error("Profile creation error:", updateErr);
+            throw updateErr;
           }
 
           // Show success message and redirect to login

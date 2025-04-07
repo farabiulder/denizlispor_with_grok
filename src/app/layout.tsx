@@ -1,12 +1,18 @@
-"use client";
 import { Inter } from "next/font/google";
 import "./globals.css";
-import { AuthProvider } from "./context/AuthProvider";
+import { Metadata } from "next";
+import ClientLayout from "./components/ClientLayout";
 
 const inter = Inter({
   subsets: ["latin"],
   variable: "--font-inter",
 });
+
+export const metadata: Metadata = {
+  title: "Denizlispor Menajerlik",
+  description:
+    "Stratejik kararlar alarak kulübü finansal zorluklar karşısında yönetin.",
+};
 
 export default function RootLayout({
   children,
@@ -14,17 +20,8 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="tr">
-      <head>
-        <title>Denizlispor Menajerlik</title>
-        <meta
-          name="description"
-          content="Stratejik kararlar alarak kulübü finansal zorluklar karşısında yönetin."
-        />
-      </head>
-      <body className={inter.className}>
-        <AuthProvider>{children}</AuthProvider>
-      </body>
+    <html lang="tr" className={inter.className}>
+      <ClientLayout>{children}</ClientLayout>
     </html>
   );
 }

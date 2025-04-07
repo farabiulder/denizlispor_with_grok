@@ -668,11 +668,11 @@ export default function Game() {
     } else if (sumOfEffects <= 20) {
       score = 4.0 + (sumOfEffects - 15) / 10; // 4.0 to 4.5
     } else {
-      score = 4.5 + (sumOfEffects - 20) / 10; // 4.5 to 5.0
+      score = 4.5 + Math.min((sumOfEffects - 20) / 20, 0.5); // 4.5 to 5.0, capped at 5.0
     }
 
-    // Round to one decimal place
-    return Math.round(score * 10) / 10;
+    // Round to one decimal place and ensure it never exceeds 5.0
+    return Math.min(Math.round(score * 10) / 10, 5.0);
   };
 
   // Modify the completeCategory function
